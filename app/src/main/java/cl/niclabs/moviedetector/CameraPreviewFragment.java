@@ -8,7 +8,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
+
+import cl.niclabs.moviedetector.descriptors.GrayHistogramExtractor;
+import cl.niclabs.moviedetector.descriptors.ImageDescriptor;
 
 
 /**
@@ -18,9 +22,33 @@ public class CameraPreviewFragment extends Fragment {
     private static final String TAG = CameraPreviewFragment.class.getSimpleName();
 
     public CameraPreviewFragment() {
+        descriptorExtractor = new GrayHistogramExtractor();
     }
 
     CameraContainer cameraContainer;
+    GrayHistogramExtractor descriptorExtractor;
+
+    private class VideoDescriptorExtractor implements Camera.PreviewCallback{
+        @Override
+        public void onPreviewFrame(byte[] data, Camera camera) {
+            long currentTime = System.currentTimeMillis();
+            ImageDescriptor descriptor = descriptorExtractor.extract(data, currentTime);
+            Log.d(TAG, "Descriptor size: " + descriptor.getSize());
+            StringBuilder stringBuilder = new StringBuilder();
+            byte[] bytes = descriptor.getBytes();
+            for (byte b : bytes){
+                stringBuilder.append((int)b);
+            }
+            Log.d(TAG, "Descriptor: " + stringBuilder.toString());
+        }
+    }
+    private class NullPreviewCallback implements Camera.PreviewCallback{
+
+        @Override
+        public void onPreviewFrame(byte[] data, Camera camera) {
+
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -28,14 +56,15 @@ public class CameraPreviewFragment extends Fragment {
         Log.d(TAG, "onCreateView");
 
         View view = inflater.inflate(R.layout.camera_preview_fragment, container, false);
-        // Create our Preview view and set it as the content of our activity.
-        Context context = getActivity();
-        cameraContainer = new CameraContainer(context, new Camera.PreviewCallback() {
+        Button recordButton = (Button) view.findViewById(R.id.start_recording_button);
+        recordButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onPreviewFrame(byte[] data, Camera camera) {
-//                Log.d(TAG, "preview received");
+            public void onClick(View v) {
+                cameraContainer.setPreviewCallback(new VideoDescriptorExtractor());
             }
         });
+        Context context = getActivity();
+        cameraContainer = new CameraContainer(context, new NullPreviewCallback());
         return view;
     }
 

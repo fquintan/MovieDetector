@@ -15,7 +15,7 @@ public abstract class ImageDescriptor {
 
     private long timestamp;
 
-    abstract protected int getSize();
-    abstract byte[] getBytes();
+    public abstract int getSize();
+    public abstract byte[] getBytes();
 
 }

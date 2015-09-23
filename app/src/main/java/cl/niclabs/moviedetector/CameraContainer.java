@@ -19,6 +19,14 @@ public class CameraContainer extends SurfaceView implements SurfaceHolder.Callba
 
     private SurfaceHolder mHolder;
     private Camera mCamera;
+
+    public void setPreviewCallback(Camera.PreviewCallback previewCallback) {
+        this.previewCallback = previewCallback;
+        if(mCamera != null){
+            mCamera.setPreviewCallback(previewCallback);
+        }
+    }
+
     private Camera.PreviewCallback previewCallback;
 
     private int id;

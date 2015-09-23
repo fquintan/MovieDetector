@@ -1,5 +1,8 @@
 package cl.niclabs.moviedetector.descriptors;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+
 /**
  * Created by felipe on 23-09-15.
  */
@@ -13,12 +16,15 @@ public class GrayHistogramImageDescriptor extends ImageDescriptor{
     }
 
     @Override
-    protected int getSize() {
-        return 0;
+    public int getSize() {
+        return histogram.length*4;
     }
 
     @Override
-    byte[] getBytes() {
-        return new byte[0];
+    public byte[] getBytes() {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(histogram.length * 4);
+        IntBuffer intBuffer = byteBuffer.asIntBuffer();
+        intBuffer.put(histogram);
+        return byteBuffer.array();
     }
 }
