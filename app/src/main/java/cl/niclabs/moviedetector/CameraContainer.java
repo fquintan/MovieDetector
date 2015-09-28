@@ -100,7 +100,7 @@ public class CameraContainer extends SurfaceView implements SurfaceHolder.Callba
         Camera.Parameters p = mCamera.getParameters();
         Log.d(TAG, "setting preview parameters");
 //        p.setPreviewSize(width, height);
-//        p.setPreviewSize(480, 320);
+        p.setPreviewSize(480, 320);
         p.setPreviewFormat(ImageFormat.NV21);
         mCamera.setParameters(p);
 

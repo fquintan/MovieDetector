@@ -21,10 +21,6 @@ import cl.niclabs.moviedetector.descriptors.ImageDescriptor;
 public class CameraPreviewFragment extends Fragment {
     private static final String TAG = CameraPreviewFragment.class.getSimpleName();
 
-    public CameraPreviewFragment() {
-        descriptorExtractor = new GrayHistogramExtractor();
-    }
-
     CameraContainer cameraContainer;
     GrayHistogramExtractor descriptorExtractor;
 
@@ -33,13 +29,7 @@ public class CameraPreviewFragment extends Fragment {
         public void onPreviewFrame(byte[] data, Camera camera) {
             long currentTime = System.currentTimeMillis();
             ImageDescriptor descriptor = descriptorExtractor.extract(data, currentTime);
-            Log.d(TAG, "Descriptor size: " + descriptor.getSize());
-            StringBuilder stringBuilder = new StringBuilder();
-            byte[] bytes = descriptor.getBytes();
-            for (byte b : bytes){
-                stringBuilder.append((int)b);
-            }
-            Log.d(TAG, "Descriptor: " + stringBuilder.toString());
+
         }
     }
     private class NullPreviewCallback implements Camera.PreviewCallback{
@@ -76,7 +66,7 @@ public class CameraPreviewFragment extends Fragment {
         cameraPreview.addView(cameraContainer);
         cameraContainer.startCamera();
         cameraContainer.startPreview();
-
+        descriptorExtractor = new GrayHistogramExtractor(getActivity(), 480, 320);
     }
 
     @Override
