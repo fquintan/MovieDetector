@@ -52,12 +52,6 @@ public class GrayHistogramExtractor implements ImageDescriptorExtractor{
         histogramExtractor.invoke_compute_histogram();
 
         histOutAllocation.copyTo(histogram);
-        StringBuilder sb = new StringBuilder();
-        for (int bin: histogram) {
-            sb.append(bin);
-            sb.append("*");
-        }
-        Log.d(TAG, "Descriptor: " + sb.toString());
         return new GrayHistogramImageDescriptor(timestamp, histogram);
     }
 
