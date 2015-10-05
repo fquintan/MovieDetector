@@ -44,7 +44,9 @@ public class CameraPreviewFragment extends Fragment implements ResponseHandler{
     private class VideoDescriptorExtractor implements Camera.PreviewCallback{
         private VideoDescriptor<GrayHistogramImageDescriptor> videoDescriptor;
         private long startTime;
+        private long lastDescriptor = 0;
         private static final long max_time = 10000;
+        private static final long segmentation = 250;
         public VideoDescriptorExtractor(){
             videoDescriptor = new VideoDescriptor<GrayHistogramImageDescriptor>();
             startTime = System.currentTimeMillis();
@@ -55,8 +57,11 @@ public class CameraPreviewFragment extends Fragment implements ResponseHandler{
             long currentTime = System.currentTimeMillis();
             long timeRecorded = currentTime - startTime;
             if (timeRecorded < max_time){
-                GrayHistogramImageDescriptor descriptor = (GrayHistogramImageDescriptor) descriptorExtractor.extract(data, currentTime);
-                videoDescriptor.addDescriptor(descriptor);
+                if (currentTime - lastDescriptor > segmentation){
+                    lastDescriptor = currentTime;
+                    GrayHistogramImageDescriptor descriptor = (GrayHistogramImageDescriptor) descriptorExtractor.extract(data, timeRecorded);
+                    videoDescriptor.addDescriptor(descriptor);
+                }
             }
             else{
                 Toast.makeText(getActivity(), "Computed descriptors", Toast.LENGTH_SHORT).show();

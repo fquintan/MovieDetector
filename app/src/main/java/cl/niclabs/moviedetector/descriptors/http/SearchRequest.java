@@ -63,11 +63,8 @@ public class SearchRequest {
                 DataOutputStream out = new DataOutputStream(urlConnection.getOutputStream());
 //                writeStream(out);
                 //Create JSONObject here
-                JSONObject jsonParam = new JSONObject();
-                jsonParam.put("ID", "25");
-                jsonParam.put("description", "Real");
-                jsonParam.put("enable", "true");
-                out.writeBytes(jsonParam.toString());
+                String json = videoDescriptor.toJSON();
+                out.writeBytes(json);
                 out.flush();
                 out.close();
                 urlConnection.connect();
@@ -85,9 +82,8 @@ public class SearchRequest {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } finally {
+            }
+            finally {
                 if (urlConnection != null){
                     urlConnection.disconnect();
                 }
