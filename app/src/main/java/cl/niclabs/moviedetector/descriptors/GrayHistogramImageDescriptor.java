@@ -9,10 +9,12 @@ import java.nio.IntBuffer;
 public class GrayHistogramImageDescriptor extends ImageDescriptor{
 
     private int[] histogram;
+    private float[] descriptor ;
 
-    public GrayHistogramImageDescriptor(long timestamp, int[] histogram){
+    public GrayHistogramImageDescriptor(long timestamp, int[] histogram, float[] descriptor){
         super(timestamp);
         this.histogram = histogram;
+        this.descriptor = descriptor;
     }
 
     @Override

@@ -27,11 +27,12 @@ public class VideoDescriptor <T extends ImageDescriptor>{
 
     public VideoDescriptor(ArrayList<T> imageDescriptors) {
         this.imageDescriptors = imageDescriptors;
-        final GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeHierarchyAdapter(ImageDescriptor.class, new VideoDescriptorJSONAdapter());
-        gsonBuilder.setPrettyPrinting();
+//        final GsonBuilder gsonBuilder = new GsonBuilder();
+//        gsonBuilder.registerTypeHierarchyAdapter(ImageDescriptor.class, new VideoDescriptorJSONAdapter());
+//        gsonBuilder.setPrettyPrinting();
+//        gson = gsonBuilder.create();
+        gson = new Gson();
 
-        gson = gsonBuilder.create();
     }
 
     public ArrayList<T> getImageDescriptors() {

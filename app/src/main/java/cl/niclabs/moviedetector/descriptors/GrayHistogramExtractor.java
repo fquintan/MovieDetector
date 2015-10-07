@@ -52,7 +52,12 @@ public class GrayHistogramExtractor implements ImageDescriptorExtractor{
         histogramExtractor.invoke_compute_histogram();
 
         histOutAllocation.copyTo(histogram);
-        return new GrayHistogramImageDescriptor(timestamp, histogram);
+        int zone_total = imageHeight * imageWidth / 4;
+        float[] descriptor = new float[histogram.length];
+        for(int i = 0; i < histogram.length; i ++){
+            descriptor[i] = ((float) histogram[i]) / zone_total;
+        }
+        return new GrayHistogramImageDescriptor(timestamp, histogram, descriptor);
     }
 
     private void setupRenderscript(Context context) {
