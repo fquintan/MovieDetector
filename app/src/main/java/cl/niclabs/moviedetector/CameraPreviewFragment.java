@@ -14,13 +14,15 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import cl.niclabs.moviedetector.descriptors.GrayHistogramExtractor;
 import cl.niclabs.moviedetector.descriptors.GrayHistogramImageDescriptor;
 import cl.niclabs.moviedetector.descriptors.VideoDescriptor;
+import cl.niclabs.moviedetector.descriptors.http.Detection;
 import cl.niclabs.moviedetector.descriptors.http.ResponseHandler;
 import cl.niclabs.moviedetector.descriptors.http.SearchRequest;
 
@@ -36,8 +38,18 @@ public class CameraPreviewFragment extends Fragment implements ResponseHandler{
 
     @Override
     public void onResponse(String responseText) {
-        Log.d(TAG, "Received response: " + responseText);
 
+        Log.d(TAG, "Received response: " + responseText);
+        Gson gson = new Gson();
+        JsonElement responseAsJson = new JsonParser().parse(responseText);
+        Detection[] detections = gson.fromJson(((JsonObject) responseAsJson).get("detections"), Detection[].class);
+        StringBuilder sb = new StringBuilder();
+        for (Detection detection: detections) {
+            sb.append("Detection: " + detection.getReference());
+            sb.append(", Score: " + detection.getScore());
+            sb.append("\n");
+        }
+        Toast.makeText(getActivity(), sb.toString(), Toast.LENGTH_LONG).show();
 
     }
 
