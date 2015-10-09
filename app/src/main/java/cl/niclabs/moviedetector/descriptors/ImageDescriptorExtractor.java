@@ -5,6 +5,6 @@ package cl.niclabs.moviedetector.descriptors;
  */
 public interface ImageDescriptorExtractor {
 
-    public ImageDescriptor extract(byte[] frame, long timestamp);
+    public ImageDescriptor extract(byte[] frame, long timestamp, int frameNumber);
 
 }

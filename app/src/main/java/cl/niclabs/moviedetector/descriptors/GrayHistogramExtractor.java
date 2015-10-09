@@ -1,7 +1,6 @@
 package cl.niclabs.moviedetector.descriptors;
 
 import android.content.Context;
-import android.graphics.ImageFormat;
 import android.support.v8.renderscript.*;
 import android.util.Log;
 
@@ -41,7 +40,7 @@ public class GrayHistogramExtractor implements ImageDescriptorExtractor{
     private Allocation histOutAllocation;
 
     @Override
-    public ImageDescriptor extract(byte[] frame, long timestamp) {
+    public ImageDescriptor extract(byte[] frame, long timestamp, int frameNumber) {
         decoderOutAllocation.copy2DRangeFrom(0, 0, imageWidth, imageHeight, frame);
 
         histOutAllocation.copyFrom(emptyHist);
@@ -57,7 +56,7 @@ public class GrayHistogramExtractor implements ImageDescriptorExtractor{
         for(int i = 0; i < histogram.length; i ++){
             descriptor[i] = ((float) histogram[i]) / zone_total;
         }
-        return new GrayHistogramImageDescriptor(timestamp, histogram, descriptor);
+        return new GrayHistogramImageDescriptor(timestamp, histogram, descriptor, frameNumber);
     }
 
     private void setupRenderscript(Context context) {

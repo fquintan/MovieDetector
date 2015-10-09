@@ -10,8 +10,9 @@ public class GrayHistogramImageDescriptor extends ImageDescriptor{
 
     private int[] histogram;
     private float[] descriptor ;
+    private int frame;
 
-    public GrayHistogramImageDescriptor(long timestamp, int[] histogram, float[] descriptor){
+    public GrayHistogramImageDescriptor(long timestamp, int[] histogram, float[] descriptor, int frame){
         super(timestamp);
         this.histogram = histogram;
         this.descriptor = descriptor;

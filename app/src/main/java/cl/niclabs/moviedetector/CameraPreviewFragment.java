@@ -57,6 +57,7 @@ public class CameraPreviewFragment extends Fragment implements ResponseHandler{
         private VideoDescriptor<GrayHistogramImageDescriptor> videoDescriptor;
         private long startTime;
         private long lastDescriptor = 0;
+        private int frameCounter = -1;
         private static final long max_time = 10000;
         private static final long segmentation = 250;
         public VideoDescriptorExtractor(){
@@ -66,12 +67,13 @@ public class CameraPreviewFragment extends Fragment implements ResponseHandler{
 
         @Override
         public void onPreviewFrame(byte[] data, Camera camera) {
+            frameCounter++;
             long currentTime = System.currentTimeMillis();
             long timeRecorded = currentTime - startTime;
             if (timeRecorded < max_time){
                 if (currentTime - lastDescriptor > segmentation){
                     lastDescriptor = currentTime;
-                    GrayHistogramImageDescriptor descriptor = (GrayHistogramImageDescriptor) descriptorExtractor.extract(data, timeRecorded);
+                    GrayHistogramImageDescriptor descriptor = (GrayHistogramImageDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
                     videoDescriptor.addDescriptor(descriptor);
                 }
             }
