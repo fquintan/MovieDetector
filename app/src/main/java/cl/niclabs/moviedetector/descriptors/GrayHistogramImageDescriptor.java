@@ -16,6 +16,7 @@ public class GrayHistogramImageDescriptor extends ImageDescriptor{
         super(timestamp);
         this.histogram = histogram;
         this.descriptor = descriptor;
+        this.frame = frame;
     }
 
     @Override
