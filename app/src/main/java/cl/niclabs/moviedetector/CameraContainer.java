@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -37,6 +39,8 @@ public class CameraContainer extends SurfaceView implements SurfaceHolder.Callba
     @SuppressWarnings("deprecation")
     public CameraContainer(Context context, Camera.PreviewCallback callback) {
         super(context);
+
+
         id = new Random().nextInt();
         TAG = TAG+id;
         mHolder = getHolder();
@@ -97,10 +101,11 @@ public class CameraContainer extends SurfaceView implements SurfaceHolder.Callba
         // set preview size and make any resize, rotate or
         // reformatting changes here
 
+        List<Camera.Size> previewSizes = mCamera.getParameters().getSupportedPreviewSizes();
+        Camera.Size selectedSize = getPreferredSize(previewSizes);
         Camera.Parameters p = mCamera.getParameters();
         Log.d(TAG, "setting preview parameters");
-//        p.setPreviewSize(width, height);
-        p.setPreviewSize(480, 320);
+        p.setPreviewSize(selectedSize.width, selectedSize.height);
         p.setPreviewFormat(ImageFormat.NV21);
         mCamera.setParameters(p);
 
@@ -116,6 +121,23 @@ public class CameraContainer extends SurfaceView implements SurfaceHolder.Callba
         } catch (Exception e){
             Log.d(TAG, "Error starting camera preview: " + e.getMessage());
         }
+    }
+
+    private Camera.Size getPreferredSize(List<Camera.Size> previewSizes) {
+        ArrayList<Camera.Size> preferredSizes = new ArrayList<Camera.Size>();
+        preferredSizes.add(mCamera.new Size(480, 320));
+        preferredSizes.add(mCamera.new Size(640, 480));
+        preferredSizes.add(mCamera.new Size(800, 480));
+        preferredSizes.add(mCamera.new Size(864, 480));
+
+        Camera.Size selectedSize = null;
+        for (Camera.Size size : preferredSizes){
+            if (previewSizes.contains(size)){
+                selectedSize = size;
+                break;
+            }
+        }
+        return selectedSize;
     }
 
     public void stopPreviewAndFreeCamera() {
@@ -151,5 +173,6 @@ public class CameraContainer extends SurfaceView implements SurfaceHolder.Callba
         }
         return c; // returns null if camera is unavailable
     }
+
 
 }

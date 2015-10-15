@@ -26,6 +26,7 @@ public class SearchRequest {
 
     private static final String TAG = SearchRequest.class.getSimpleName();
 
+//    private final String queryURL = "http://172.30.65.34:5000/search/api/search_by_descriptor";
     private final String queryURL = "http://172.30.65.34:5000/search/api/search_by_descriptor";
     private VideoDescriptor videoDescriptor;
     private ResponseHandler responseHandler;
