@@ -5,14 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 
-import cl.niclabs.moviedetector.descriptors.http.Detection;
+import cl.niclabs.moviedetector.http.Detection;
 
 /**
  * Created by felipe on 16-10-15.

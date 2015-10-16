@@ -1,4 +1,4 @@
-package cl.niclabs.moviedetector.descriptors.http;
+package cl.niclabs.moviedetector.http;
 
 /**
  * Created by felipe on 09-10-15.

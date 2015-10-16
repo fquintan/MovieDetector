@@ -17,17 +17,10 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import cl.niclabs.moviedetector.descriptors.GrayHistogramExtractor;
 import cl.niclabs.moviedetector.descriptors.GrayHistogramImageDescriptor;
 import cl.niclabs.moviedetector.descriptors.VideoDescriptor;
-import cl.niclabs.moviedetector.descriptors.http.Detection;
-import cl.niclabs.moviedetector.descriptors.http.ResponseHandler;
-import cl.niclabs.moviedetector.descriptors.http.SearchRequest;
+import cl.niclabs.moviedetector.http.SearchRequest;
 
 
 /**

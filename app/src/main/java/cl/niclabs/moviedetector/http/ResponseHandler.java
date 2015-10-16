@@ -1,6 +1,4 @@
-package cl.niclabs.moviedetector.descriptors.http;
-
-import java.io.InputStream;
+package cl.niclabs.moviedetector.http;
 
 /**
  * Created by felipe on 29-09-15.
