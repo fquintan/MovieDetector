@@ -61,11 +61,8 @@ public class CameraPreviewFragment extends Fragment{
                 }
             }
             else{
-                Toast.makeText(getActivity(), "Computed descriptors", Toast.LENGTH_SHORT).show();
                 cameraContainer.setPreviewCallback(new NullPreviewCallback());
                 QueryResultsFragment queryResultsFragment = new QueryResultsFragment();
-//                queryResultsFragment.setEmptyText("Esperando resultados");
-
                 new SearchRequest(videoDescriptor, queryResultsFragment).execute();
 
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
@@ -73,7 +70,6 @@ public class CameraPreviewFragment extends Fragment{
                 transaction.replace(R.id.fragment_container, queryResultsFragment);
                 transaction.addToBackStack(null);
                 transaction.commit();
-
             }
 
         }
@@ -102,7 +98,6 @@ public class CameraPreviewFragment extends Fragment{
                 NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
                 if (networkInfo != null && networkInfo.isConnected()) {
                     // fetch data
-                    Toast.makeText(getActivity(), "Computing descriptors", Toast.LENGTH_SHORT).show();
                     recordButton.setVisibility(View.GONE);
                     progressBar.setVisibility(View.VISIBLE);
                     cameraContainer.setPreviewCallback(new VideoDescriptorExtractor());

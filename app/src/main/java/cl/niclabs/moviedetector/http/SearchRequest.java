@@ -19,6 +19,7 @@ import cl.niclabs.moviedetector.descriptors.VideoDescriptor;
 public class SearchRequest {
 
     private static final String TAG = SearchRequest.class.getSimpleName();
+    private static final String FAIL = "FAIL";
 
 //    private final String queryURL = "http://172.30.65.34:5000/search/api/search_by_descriptor";
     private final String queryURL = "http://172.30.65.34:5000/search/api/search_by_descriptor";
@@ -43,11 +44,19 @@ public class SearchRequest {
 
         @Override
         protected String doInBackground(VideoDescriptor... params) {
-            URL urlToRequest;
+            URL urlToRequest = null;
             StringBuilder response = new StringBuilder();
             HttpURLConnection urlConnection = null;
             try {
                 urlToRequest = new URL(queryURL);
+            }
+            catch (MalformedURLException e) {
+                Log.d(TAG, queryURL + " is not a valid URL");
+                e.printStackTrace();
+                this.cancel(true);
+                return FAIL;
+            }
+            try{
                 urlConnection = (HttpURLConnection) urlToRequest.openConnection();
                 urlConnection.setDoOutput(true);
                 urlConnection.setDoInput(true);
@@ -69,14 +78,10 @@ public class SearchRequest {
                 while ((line = in.readLine()) != null) {
                     response.append(line);
                 }
-
-
-            }
-            catch (MalformedURLException e) {
-                Log.d(TAG, queryURL + " is not a valid URL");
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
+                cancel(true);
+                return FAIL;
             }
             finally {
                 if (urlConnection != null){
@@ -88,7 +93,12 @@ public class SearchRequest {
 
         @Override
         protected void onPostExecute(String response) {
-            responseHandler.onResponse(response);
+            responseHandler.onSuccessResponse(response);
+        }
+
+        @Override
+        protected void onCancelled(String s) {
+            responseHandler.onFailure();
         }
     }
 }

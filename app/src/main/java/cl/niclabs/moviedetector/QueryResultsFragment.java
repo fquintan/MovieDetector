@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
@@ -102,7 +103,8 @@ public class QueryResultsFragment extends android.support.v4.app.Fragment implem
 
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
-//        setEmptyText("Esperando resultados");
+        mListView.setEmptyView(view.findViewById(R.id.empty_results));
+        setEmptyText("Esperando resultados");
         return view;
     }
 
@@ -147,7 +149,8 @@ public class QueryResultsFragment extends android.support.v4.app.Fragment implem
     }
 
     @Override
-    public void onResponse(String responseText) {
+    public void onSuccessResponse(String responseText) {
+        detections.clear();
 
         Log.d(TAG, "Received response: " + responseText);
         Gson gson = new Gson();
@@ -156,8 +159,20 @@ public class QueryResultsFragment extends android.support.v4.app.Fragment implem
         for (Detection detection: detectionsArray) {
             detections.add(detection);
         }
-        mListView.requestLayout();
+        if (detections.isEmpty()){
+            setEmptyText("No pudé encontrar el video");
+        }
+        ArrayAdapter<Detection> adapter = (ArrayAdapter<Detection>) mListView.getAdapter();
+        adapter.notifyDataSetChanged();
+//        mListView.requestLayout();
 //        Toast.makeText(getActivity(), sb.toString(), Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onFailure() {
+        detections.clear();
+        setEmptyText("Falló la conexión con el servidor");
+        mListView.requestLayout();
     }
 
 
