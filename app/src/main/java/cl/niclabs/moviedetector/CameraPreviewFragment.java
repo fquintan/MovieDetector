@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -35,6 +36,8 @@ public class CameraPreviewFragment extends Fragment implements ResponseHandler{
 
     CameraContainer cameraContainer;
     GrayHistogramExtractor descriptorExtractor;
+    ProgressBar progressBar;
+    private Button recordButton;
 
     @Override
     public void onResponse(String responseText) {
@@ -71,6 +74,7 @@ public class CameraPreviewFragment extends Fragment implements ResponseHandler{
             long currentTime = System.currentTimeMillis();
             long timeRecorded = currentTime - startTime;
             if (timeRecorded < max_time){
+                progressBar.setProgress((int) timeRecorded);
                 if (currentTime - lastDescriptor > segmentation){
                     lastDescriptor = currentTime;
                     GrayHistogramImageDescriptor descriptor = (GrayHistogramImageDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
@@ -99,7 +103,8 @@ public class CameraPreviewFragment extends Fragment implements ResponseHandler{
         Log.d(TAG, "onCreateView");
 
         View view = inflater.inflate(R.layout.camera_preview_fragment, container, false);
-        Button recordButton = (Button) view.findViewById(R.id.start_recording_button);
+
+        recordButton = (Button) view.findViewById(R.id.start_recording_button);
         recordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -109,6 +114,8 @@ public class CameraPreviewFragment extends Fragment implements ResponseHandler{
                 if (networkInfo != null && networkInfo.isConnected()) {
                     // fetch data
                     Toast.makeText(getActivity(), "Computing descriptors", Toast.LENGTH_SHORT).show();
+                    recordButton.setVisibility(View.GONE);
+                    progressBar.setVisibility(View.VISIBLE);
                     cameraContainer.setPreviewCallback(new VideoDescriptorExtractor());
                 } else {
                     // display error
@@ -116,6 +123,9 @@ public class CameraPreviewFragment extends Fragment implements ResponseHandler{
                 }
             }
         });
+        progressBar = (ProgressBar)view.findViewById(R.id.progressBar);
+        progressBar.setIndeterminate(false);
+        progressBar.setMax((int) VideoDescriptorExtractor.max_time);
         Context context = getActivity();
         cameraContainer = new CameraContainer(context, new NullPreviewCallback());
         return view;
