@@ -6,6 +6,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +33,7 @@ import cl.niclabs.moviedetector.descriptors.http.SearchRequest;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class CameraPreviewFragment extends Fragment implements ResponseHandler{
+public class CameraPreviewFragment extends Fragment{
     private static final String TAG = CameraPreviewFragment.class.getSimpleName();
 
     CameraContainer cameraContainer;
@@ -39,29 +41,13 @@ public class CameraPreviewFragment extends Fragment implements ResponseHandler{
     ProgressBar progressBar;
     private Button recordButton;
 
-    @Override
-    public void onResponse(String responseText) {
-
-        Log.d(TAG, "Received response: " + responseText);
-        Gson gson = new Gson();
-        JsonElement responseAsJson = new JsonParser().parse(responseText);
-        Detection[] detections = gson.fromJson(((JsonObject) responseAsJson).get("detections"), Detection[].class);
-        StringBuilder sb = new StringBuilder();
-        for (Detection detection: detections) {
-            sb.append("Detection: " + detection.getReference());
-            sb.append(", Score: " + detection.getScore());
-            sb.append("\n");
-        }
-        Toast.makeText(getActivity(), sb.toString(), Toast.LENGTH_LONG).show();
-
-    }
 
     private class VideoDescriptorExtractor implements Camera.PreviewCallback{
         private VideoDescriptor<GrayHistogramImageDescriptor> videoDescriptor;
         private long startTime;
         private long lastDescriptor = 0;
         private int frameCounter = -1;
-        private static final long max_time = 10000;
+        private static final long max_time = 5000;
         private static final long segmentation = 250;
         public VideoDescriptorExtractor(){
             videoDescriptor = new VideoDescriptor<GrayHistogramImageDescriptor>();
@@ -84,7 +70,17 @@ public class CameraPreviewFragment extends Fragment implements ResponseHandler{
             else{
                 Toast.makeText(getActivity(), "Computed descriptors", Toast.LENGTH_SHORT).show();
                 cameraContainer.setPreviewCallback(new NullPreviewCallback());
-                new SearchRequest(videoDescriptor, CameraPreviewFragment.this).execute();
+                QueryResultsFragment queryResultsFragment = new QueryResultsFragment();
+//                queryResultsFragment.setEmptyText("Esperando resultados");
+
+                new SearchRequest(videoDescriptor, queryResultsFragment).execute();
+
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(R.id.fragment_container, queryResultsFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+
             }
 
         }

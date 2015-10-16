@@ -1,19 +1,25 @@
 package cl.niclabs.moviedetector;
 
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements QueryResultsFragment.OnFragmentInteractionListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-//        getSupportFragmentManager().beginTransaction().add(R.id.camera_preview_fragment, new CameraPreviewFragment()).commit();
+        CameraPreviewFragment cameraPreviewFragment = new CameraPreviewFragment();
+        transaction.add(R.id.fragment_container, cameraPreviewFragment);
+        transaction.commit();
     }
 
 
@@ -37,5 +43,10 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onFragmentInteraction(String id) {
+
     }
 }
