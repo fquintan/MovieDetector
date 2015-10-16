@@ -19,9 +19,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import java.util.ArrayList;
+
 import cl.niclabs.moviedetector.descriptors.http.Detection;
 import cl.niclabs.moviedetector.descriptors.http.ResponseHandler;
-import cl.niclabs.moviedetector.dummy.DummyContent;
 
 /**
  * A fragment representing a list of Items.
@@ -35,6 +36,8 @@ import cl.niclabs.moviedetector.dummy.DummyContent;
 public class QueryResultsFragment extends android.support.v4.app.Fragment implements AbsListView.OnItemClickListener, ResponseHandler {
 
     private static final String TAG = QueryResultsFragment.class.getSimpleName();
+
+    private ArrayList<Detection> detections = new ArrayList<Detection>();
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -85,8 +88,9 @@ public class QueryResultsFragment extends android.support.v4.app.Fragment implem
         }
 
         // TODO: Change Adapter to display your content
-        mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-                android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
+        mAdapter = new QueryResultAdapter(getActivity(), R.layout.query_result_layout, detections);
+//        mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
+//                android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
     }
 
     @Override
@@ -96,11 +100,12 @@ public class QueryResultsFragment extends android.support.v4.app.Fragment implem
 
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
+//        mListView.setAdapter(mAdapter);
         ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
 
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
-        setEmptyText("Esperando resultados");
+//        setEmptyText("Esperando resultados");
         return view;
     }
 
@@ -126,7 +131,8 @@ public class QueryResultsFragment extends android.support.v4.app.Fragment implem
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
+
+            mListener.onFragmentInteraction(detections.get(position).getReference());
         }
     }
 
@@ -149,14 +155,12 @@ public class QueryResultsFragment extends android.support.v4.app.Fragment implem
         Log.d(TAG, "Received response: " + responseText);
         Gson gson = new Gson();
         JsonElement responseAsJson = new JsonParser().parse(responseText);
-        Detection[] detections = gson.fromJson(((JsonObject) responseAsJson).get("detections"), Detection[].class);
-        StringBuilder sb = new StringBuilder();
-        for (Detection detection: detections) {
-            sb.append("Detection: " + detection.getReference());
-            sb.append(", Score: " + detection.getScore());
-            sb.append("\n");
+        Detection[] detectionsArray = gson.fromJson(((JsonObject) responseAsJson).get("detections"), Detection[].class);
+        for (Detection detection: detectionsArray) {
+            detections.add(detection);
         }
-        Toast.makeText(getActivity(), sb.toString(), Toast.LENGTH_LONG).show();
+        mListView.requestLayout();
+//        Toast.makeText(getActivity(), sb.toString(), Toast.LENGTH_LONG).show();
     }
 
 

@@ -3,4 +3,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="capture_button_text">Grabar</string>
+    <string name="result_title_string">Titulo:</string>
+    <string name="result_score_string">score:</string>
 </resources>
