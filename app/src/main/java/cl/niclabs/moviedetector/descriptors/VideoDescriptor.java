@@ -26,12 +26,13 @@ public class VideoDescriptor <T extends ImageDescriptor>{
     }
 
     public VideoDescriptor(ArrayList<T> imageDescriptors) {
+
         this.imageDescriptors = imageDescriptors;
-//        final GsonBuilder gsonBuilder = new GsonBuilder();
-//        gsonBuilder.registerTypeHierarchyAdapter(ImageDescriptor.class, new VideoDescriptorJSONAdapter());
-//        gsonBuilder.setPrettyPrinting();
-//        gson = gsonBuilder.create();
-        gson = new Gson();
+        final GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeHierarchyAdapter(VideoDescriptor.class, new VideoDescriptorJSONAdapter());
+        gsonBuilder.setPrettyPrinting();
+        gson = gsonBuilder.create();
+//        gson = new Gson();
 
     }
 
@@ -44,22 +45,24 @@ public class VideoDescriptor <T extends ImageDescriptor>{
     }
 
     public String toJSON(){
-        return gson.toJson(imageDescriptors);
+        return gson.toJson(this);
     }
 
-    private class VideoDescriptorJSONAdapter extends TypeAdapter<ImageDescriptor> {
-
+    private class VideoDescriptorJSONAdapter extends TypeAdapter<VideoDescriptor<T>> {
 
         @Override
-        public void write(JsonWriter out, ImageDescriptor value) throws IOException {
+        public void write(JsonWriter out, VideoDescriptor<T> value) throws IOException {
+            T firstDescriptor = value.getImageDescriptors().get(0);
             out.beginObject();
-            out.name("timestamp").value(value.getTimestamp());
-            out.name("descriptor").value(GsonHelper.customGson.toJson(value.getBytes()));
-            out.endObject();
+            out.name("type").value(firstDescriptor.getType());
+            out.name("options").value(firstDescriptor.getSerializedOptions());
+            out.name("length").value(value.getImageDescriptors().size());
+            Gson imageDescriptorSerializer = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+            out.name("descriptors").value(imageDescriptorSerializer.toJson(value.getImageDescriptors()));
         }
 
         @Override
-        public ImageDescriptor read(JsonReader in) throws IOException {
+        public VideoDescriptor read(JsonReader in) throws IOException {
             return null;
         }
     }

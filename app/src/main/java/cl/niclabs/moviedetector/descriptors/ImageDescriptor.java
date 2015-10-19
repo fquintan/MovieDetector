@@ -1,21 +1,29 @@
 package cl.niclabs.moviedetector.descriptors;
 
+import com.google.gson.annotations.Expose;
+
 /**
  * Created by felipe on 23-09-15.
  */
 public abstract class ImageDescriptor {
 
-    public ImageDescriptor(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
     public long getTimestamp() {
         return timestamp;
     }
 
-    private long timestamp;
+    @Expose
+    protected double[] descriptor;
+    @Expose
+    protected long timestamp;
+    @Expose
+    protected int frameNumber;
 
-    public abstract int getSize();
-    public abstract byte[] getBytes();
+    public abstract String getType();
+    public abstract String getSerializedOptions();
 
+    public ImageDescriptor(double[] descriptor, long timestamp, int frameNumber) {
+        this.descriptor = descriptor;
+        this.timestamp = timestamp;
+        this.frameNumber = frameNumber;
+    }
 }

@@ -18,7 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import cl.niclabs.moviedetector.descriptors.GrayHistogramExtractor;
-import cl.niclabs.moviedetector.descriptors.GrayHistogramImageDescriptor;
+import cl.niclabs.moviedetector.descriptors.GrayHistogramDescriptor;
 import cl.niclabs.moviedetector.descriptors.VideoDescriptor;
 import cl.niclabs.moviedetector.http.SearchRequest;
 
@@ -36,14 +36,14 @@ public class CameraPreviewFragment extends Fragment{
 
 
     private class VideoDescriptorExtractor implements Camera.PreviewCallback{
-        private VideoDescriptor<GrayHistogramImageDescriptor> videoDescriptor;
+        private VideoDescriptor<GrayHistogramDescriptor> videoDescriptor;
         private long startTime;
         private long lastDescriptor = 0;
         private int frameCounter = -1;
         private static final long max_time = 5000;
         private static final long segmentation = 250;
         public VideoDescriptorExtractor(){
-            videoDescriptor = new VideoDescriptor<GrayHistogramImageDescriptor>();
+            videoDescriptor = new VideoDescriptor<GrayHistogramDescriptor>();
             startTime = System.currentTimeMillis();
         }
 
@@ -56,7 +56,7 @@ public class CameraPreviewFragment extends Fragment{
                 progressBar.setProgress((int) timeRecorded);
                 if (currentTime - lastDescriptor > segmentation){
                     lastDescriptor = currentTime;
-                    GrayHistogramImageDescriptor descriptor = (GrayHistogramImageDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
+                    GrayHistogramDescriptor descriptor = (GrayHistogramDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
                     videoDescriptor.addDescriptor(descriptor);
                 }
             }
