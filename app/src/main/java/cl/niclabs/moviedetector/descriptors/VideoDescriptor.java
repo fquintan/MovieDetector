@@ -59,6 +59,7 @@ public class VideoDescriptor <T extends ImageDescriptor>{
             out.name("length").value(value.getImageDescriptors().size());
             Gson imageDescriptorSerializer = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             out.name("descriptors").value(imageDescriptorSerializer.toJson(value.getImageDescriptors()));
+            out.endObject();
         }
 
         @Override
