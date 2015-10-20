@@ -1,5 +1,8 @@
 package cl.niclabs.moviedetector.descriptors;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -30,6 +33,11 @@ public class GrayHistogramDescriptor extends ImageDescriptor{
 
     @Override
     public String getSerializedOptions() {
-        return "options";
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("zones_x", zones_x);
+        jsonObject.addProperty("zones_y", zones_y);
+        jsonObject.addProperty("bins", bins);
+        jsonObject.addProperty("quant", "4F");
+        return new Gson().toJson(jsonObject);
     }
 }
