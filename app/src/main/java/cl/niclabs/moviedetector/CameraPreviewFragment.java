@@ -19,6 +19,10 @@ import android.widget.Toast;
 
 import cl.niclabs.moviedetector.descriptors.GrayHistogramExtractor;
 import cl.niclabs.moviedetector.descriptors.GrayHistogramDescriptor;
+import cl.niclabs.moviedetector.descriptors.ImageDescriptor;
+import cl.niclabs.moviedetector.descriptors.ImageDescriptorExtractor;
+import cl.niclabs.moviedetector.descriptors.KeyframeDescriptor;
+import cl.niclabs.moviedetector.descriptors.KeyframeExtractor;
 import cl.niclabs.moviedetector.descriptors.VideoDescriptor;
 import cl.niclabs.moviedetector.http.SearchRequest;
 
@@ -30,20 +34,20 @@ public class CameraPreviewFragment extends Fragment{
     private static final String TAG = CameraPreviewFragment.class.getSimpleName();
 
     CameraContainer cameraContainer;
-    GrayHistogramExtractor descriptorExtractor;
+    ImageDescriptorExtractor descriptorExtractor;
     ProgressBar progressBar;
     private Button recordButton;
 
 
     private class VideoDescriptorExtractor implements Camera.PreviewCallback{
-        private VideoDescriptor<GrayHistogramDescriptor> videoDescriptor;
+        private VideoDescriptor<KeyframeDescriptor> videoDescriptor;
         private long startTime;
         private long lastDescriptor = 0;
         private int frameCounter = -1;
         private static final long max_time = 5000;
         private static final long segmentation = 250;
         public VideoDescriptorExtractor(){
-            videoDescriptor = new VideoDescriptor<GrayHistogramDescriptor>();
+            videoDescriptor = new VideoDescriptor<KeyframeDescriptor>();
             startTime = System.currentTimeMillis();
         }
 
@@ -56,7 +60,8 @@ public class CameraPreviewFragment extends Fragment{
                 progressBar.setProgress((int) timeRecorded);
                 if (currentTime - lastDescriptor > segmentation){
                     lastDescriptor = currentTime;
-                    GrayHistogramDescriptor descriptor = (GrayHistogramDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
+//                    GrayHistogramDescriptor descriptor = (GrayHistogramDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
+                    KeyframeDescriptor descriptor = (KeyframeDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
                     videoDescriptor.addDescriptor(descriptor);
                 }
             }
@@ -123,7 +128,10 @@ public class CameraPreviewFragment extends Fragment{
         cameraPreview.addView(cameraContainer);
         cameraContainer.startCamera();
         cameraContainer.startPreview();
-        descriptorExtractor = new GrayHistogramExtractor(getActivity(), 480, 320);
+//        descriptorExtractor = new GrayHistogramExtractor(getActivity(), cameraContainer.getImageWidth(), cameraContainer.getImageHeight());
+        descriptorExtractor = new KeyframeExtractor(getActivity(), 10, 10,
+                cameraContainer.getImageWidth(),
+                cameraContainer.getImageHeight());
     }
 
     @Override

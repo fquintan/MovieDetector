@@ -22,6 +22,9 @@ public class CameraContainer extends SurfaceView implements SurfaceHolder.Callba
     private SurfaceHolder mHolder;
     private Camera mCamera;
 
+    private int width;
+    private int height;
+
     public void setPreviewCallback(Camera.PreviewCallback previewCallback) {
         this.previewCallback = previewCallback;
         if(mCamera != null){
@@ -123,6 +126,14 @@ public class CameraContainer extends SurfaceView implements SurfaceHolder.Callba
         }
     }
 
+    public int getImageWidth() {
+        return width;
+    }
+
+    public int getImageHeight() {
+        return height;
+    }
+
     private Camera.Size getPreferredSize(List<Camera.Size> previewSizes) {
         ArrayList<Camera.Size> preferredSizes = new ArrayList<Camera.Size>();
         preferredSizes.add(mCamera.new Size(480, 320));
@@ -134,6 +145,9 @@ public class CameraContainer extends SurfaceView implements SurfaceHolder.Callba
         for (Camera.Size size : preferredSizes){
             if (previewSizes.contains(size)){
                 selectedSize = size;
+                height = size.height;
+                width = size.width;
+
                 break;
             }
         }
