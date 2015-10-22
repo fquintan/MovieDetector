@@ -2,30 +2,33 @@ package cl.niclabs.moviedetector.descriptors;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
-import org.json.JSONObject;
-
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
-
-import cl.niclabs.moviedetector.utils.GsonHelper;
 
 /**
  * Created by felipe on 23-09-15.
  */
-public class VideoDescriptor <T extends ImageDescriptor>{
+public class VideoDescriptor <D extends ImageDescriptor, T extends Number>{
 
-    private ArrayList<T> imageDescriptors;
+    private final Class<T> numericType;
+    private ArrayList<D> imageDescriptors;
     private Gson gson;
 
-    public VideoDescriptor() {
-        this(new ArrayList<T>());
+    public VideoDescriptor(Class<T> numericType) {
+        this(numericType, new ArrayList<D>());
     }
 
-    public VideoDescriptor(ArrayList<T> imageDescriptors) {
+    public VideoDescriptor(Class<T> numericType, ArrayList<D> imageDescriptors) {
+        this.numericType = numericType;
 
         this.imageDescriptors = imageDescriptors;
         final GsonBuilder gsonBuilder = new GsonBuilder();
@@ -36,11 +39,11 @@ public class VideoDescriptor <T extends ImageDescriptor>{
 
     }
 
-    public ArrayList<T> getImageDescriptors() {
+    public ArrayList<D> getImageDescriptors() {
         return imageDescriptors;
     }
 
-    public void addDescriptor(T imageDescriptor){
+    public void addDescriptor(D imageDescriptor){
         imageDescriptors.add(imageDescriptor);
     }
 
@@ -48,16 +51,23 @@ public class VideoDescriptor <T extends ImageDescriptor>{
         return gson.toJson(this);
     }
 
-    private class VideoDescriptorJSONAdapter extends TypeAdapter<VideoDescriptor<T>> {
+    private class VideoDescriptorJSONAdapter extends TypeAdapter<VideoDescriptor<D,T>> {
 
         @Override
-        public void write(JsonWriter out, VideoDescriptor<T> value) throws IOException {
-            T firstDescriptor = value.getImageDescriptors().get(0);
+        public void write(JsonWriter out, VideoDescriptor<D,T> value) throws IOException {
+            D firstDescriptor = value.getImageDescriptors().get(0);
             out.beginObject();
             out.name("type").value(firstDescriptor.getType());
             out.name("options").value(firstDescriptor.getSerializedOptions());
             out.name("length").value(value.getImageDescriptors().size());
-            Gson imageDescriptorSerializer = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+            GsonBuilder gsonBuilder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation();
+            if (numericType.equals(Integer.class)){
+                gsonBuilder.registerTypeAdapter(Double.class, new DoubleToIntSerializer());
+            }
+            else{
+                gsonBuilder.registerTypeAdapter(Double.class, new DoubleToFloatSerializer());
+            }
+            Gson imageDescriptorSerializer = gsonBuilder.create();
             out.name("descriptors").value(imageDescriptorSerializer.toJson(value.getImageDescriptors()));
             out.endObject();
         }
@@ -67,4 +77,19 @@ public class VideoDescriptor <T extends ImageDescriptor>{
             return null;
         }
     }
+
+    private class DoubleToIntSerializer implements JsonSerializer<Double> {
+        @Override
+        public JsonElement serialize(Double src, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(src.intValue());
+        }
+    }
+    private class DoubleToFloatSerializer implements JsonSerializer<Double> {
+        @Override
+        public JsonElement serialize(Double src, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(src.floatValue());
+        }
+    }
+
+
 }

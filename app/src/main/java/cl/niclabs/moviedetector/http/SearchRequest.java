@@ -57,6 +57,7 @@ public class SearchRequest {
                 return FAIL;
             }
             try{
+                Log.d(TAG, "Attempting to connect with server");
                 urlConnection = (HttpURLConnection) urlToRequest.openConnection();
                 urlConnection.setDoOutput(true);
                 urlConnection.setDoInput(true);

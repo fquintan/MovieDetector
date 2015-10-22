@@ -27,11 +27,13 @@ void root(const uchar4 *v_in, uint32_t x,  uint32_t y) {
     int32_t red = (*v_in).r;
     int32_t green = (*v_in).g;
     int32_t blue = (*v_in).b;
-    uchar4 pixel = rsGetElementAt_uchar4(gIn, x, y);
-    int32_t red = pixel.r;
-    int32_t green = pixel.g;
-    int32_t blue = pixel.b;
-
+//    uchar4 pixel = rsGetElementAt_uchar4(gIn, x, y);
+//    int32_t red = pixel.r;
+//    int32_t green = pixel.g;
+//    int32_t blue = pixel.b;
+//    rsDebug("red ", red);
+//    rsDebug("green ", green);
+//    rsDebug("blue", blue);
     int32_t xzone = x / zoneWidth;
     int32_t yzone = y / zoneHeight;
     int32_t index = ((yzone * width) + xzone)*3;

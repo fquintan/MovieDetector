@@ -19,6 +19,8 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
     int imageWidth;
     int imageHeight;
 
+    int zoneHeight;
+    int zoneWidth;
 
     private RenderScript rs;
     private ScriptIntrinsicYuvToRGB yuvToRGB;
@@ -38,6 +40,8 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
         descriptorLength = descriptorHeight*descriptorWidth*3;
         emptyDescriptor = new int[descriptorLength];
         descriptor = new int[descriptorLength];
+        zoneHeight = imageHeight / descriptorHeight;
+        zoneWidth = imageWidth / descriptorWidth;
 
         setupRenderscript(context);
     }
@@ -50,23 +54,25 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
         yuvToRGB.forEach(rgbAllocation);
         byte[] image = new byte[imageHeight*imageWidth*4];
         rgbAllocation.copyTo(image);
-
         keyFrameAllocation.copyFrom(emptyDescriptor);
         keyframeScript.set_gIn(rgbAllocation);
         keyframeScript.set_gOut(keyFrameAllocation);
         keyframeScript.bind_gOutarray(keyFrameAllocation);
-        keyframeScript.set_gScript(keyframeScript);
+
+//        keyframeScript.set_gScript(keyframeScript);
         keyframeScript.invoke_compute_keyframe();
+        rs.finish();
 
         keyFrameAllocation.copyTo(descriptor);
 
         double[] descriptor_as_double = new double[descriptorLength];
         int count = 0;
         for (int i = 0; i < descriptorLength; i++){
-            descriptor_as_double[i] = descriptor[i] / (descriptorHeight*descriptorWidth);
+            descriptor_as_double[i] = descriptor[i] / (zoneHeight*zoneWidth);
             count += descriptor[i];
         }
-        return new KeyframeDescriptor(descriptor_as_double, timestamp, frameNumber);
+        return new KeyframeDescriptor(descriptor_as_double, timestamp, frameNumber,
+                                        descriptorHeight, descriptorWidth);
     }
 
     private void setupRenderscript(Context context){
@@ -91,5 +97,7 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
         keyFrameAllocation = Allocation.createTyped(rs, tbKeyframe.create(), Allocation.USAGE_SCRIPT);
 
         keyframeScript.invoke_setup2(descriptorWidth, descriptorHeight, imageWidth, imageHeight);
+        keyframeScript.set_gScript(keyframeScript);
+
     }
 }
