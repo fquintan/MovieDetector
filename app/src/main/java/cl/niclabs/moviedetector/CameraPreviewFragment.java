@@ -34,6 +34,7 @@ public class CameraPreviewFragment extends Fragment{
     ImageDescriptorExtractor descriptorExtractor;
     ProgressBar progressBar;
     private Button recordButton;
+    private DrawView screenLimits;
 
 
     private class VideoDescriptorExtractor implements Camera.PreviewCallback{
@@ -114,6 +115,8 @@ public class CameraPreviewFragment extends Fragment{
         progressBar.setMax((int) VideoDescriptorExtractor.max_time);
         Context context = getActivity();
         cameraContainer = new CameraContainer(context, new NullPreviewCallback());
+        screenLimits = (DrawView) view.findViewById(R.id.screen_limits);
+
         return view;
     }
 
