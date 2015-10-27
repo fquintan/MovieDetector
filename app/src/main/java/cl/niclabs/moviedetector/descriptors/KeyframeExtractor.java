@@ -28,6 +28,7 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
 
     private Allocation yuvAllocation;
     private Allocation rgbAllocation;
+    private Allocation rgbCroppedAllocation;
     private Allocation keyFrameAllocation;
     private int[] emptyDescriptor;
     private int[] descriptor;
@@ -52,10 +53,12 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
 //        yuvAllocation.copy2DRangeFrom(0,0,imageWidth,imageHeight,frame);
         yuvToRGB.setInput(yuvAllocation);
         yuvToRGB.forEach(rgbAllocation);
-        byte[] image = new byte[imageHeight*imageWidth*4];
-        rgbAllocation.copyTo(image);
+        Log.d("KeyframeExtractor", "Attempting to crop allocation");
+
+        rgbCroppedAllocation.copy2DRangeFrom(0, 0, 320, 480, rgbAllocation, 318, 0);
+        Log.d("KeyframeExtractor", "cropped allocation");
         keyFrameAllocation.copyFrom(emptyDescriptor);
-        keyframeScript.set_gIn(rgbAllocation);
+        keyframeScript.set_gIn(rgbCroppedAllocation);
         keyframeScript.set_gOut(keyFrameAllocation);
         keyframeScript.bind_gOutarray(keyFrameAllocation);
 
@@ -89,14 +92,20 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
         tbRGB.setX(imageWidth);
         tbRGB.setY(imageHeight);
 
+        Type.Builder tbRGBCrop = new Type.Builder(rs, Element.U8_4(rs));
+        tbRGBCrop.setX(320);
+        tbRGBCrop.setY(480);
+
         Type.Builder tbKeyframe = new Type.Builder(rs, Element.I32(rs));
         tbKeyframe.setX(descriptorLength);
 
         yuvAllocation = Allocation.createTyped(rs, tbYUV.create(), Allocation.MipmapControl.MIPMAP_NONE,  Allocation.USAGE_SCRIPT & Allocation.USAGE_SHARED);
-        rgbAllocation = Allocation.createTyped(rs, tbRGB.create(), Allocation.MipmapControl.MIPMAP_NONE,  Allocation.USAGE_SCRIPT & Allocation.USAGE_SHARED);
+        rgbAllocation = Allocation.createTyped(rs, tbRGB.create(), Allocation.MipmapControl.MIPMAP_NONE,  Allocation.USAGE_SCRIPT );
+        rgbCroppedAllocation = Allocation.createTyped(rs, tbRGBCrop.create(), Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
         keyFrameAllocation = Allocation.createTyped(rs, tbKeyframe.create(), Allocation.USAGE_SCRIPT);
 
-        keyframeScript.invoke_setup2(descriptorWidth, descriptorHeight, imageWidth, imageHeight);
+//        keyframeScript.invoke_setup2(descriptorWidth, descriptorHeight, imageWidth, imageHeight);
+        keyframeScript.invoke_setup2(descriptorWidth, descriptorHeight, 320, 480);
         keyframeScript.set_gScript(keyframeScript);
 
     }
