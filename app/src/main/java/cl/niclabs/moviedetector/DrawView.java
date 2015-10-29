@@ -225,4 +225,18 @@ public class DrawView extends View {
     public void shade_region_between_points() {
         canvas.drawRect(point1.x, point3.y, point3.x, point1.y, paint);
     }
+
+    public int getTopLimit(){
+        return point1.y;
+    }
+    public int getBottomLimit(){
+        return point3.y;
+    }
+    public int getRightLimit(){
+        return point3.x;
+    }
+    public int getLeftLimit(){
+        return point1.x;
+    }
+
 }

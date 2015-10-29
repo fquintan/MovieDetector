@@ -6,6 +6,7 @@ import android.support.v8.renderscript.*;
 import android.util.Log;
 
 import cl.niclabs.moviedetector.ScriptC_keyframe;
+import cl.niclabs.moviedetector.utils.ScreenBoundaries;
 
 /**
  * Created by felipe on 20-10-15.
@@ -22,6 +23,8 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
     int zoneHeight;
     int zoneWidth;
 
+    ScreenBoundaries screenLimits;
+
     private RenderScript rs;
     private ScriptIntrinsicYuvToRGB yuvToRGB;
     private ScriptC_keyframe keyframeScript;
@@ -33,7 +36,7 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
     private int[] emptyDescriptor;
     private int[] descriptor;
 
-    public KeyframeExtractor(Context context, int descriptorHeight, int descriptorWidth, int imageWidth, int imageHeight) {
+    public KeyframeExtractor(Context context, int descriptorHeight, int descriptorWidth, int imageWidth, int imageHeight, ScreenBoundaries croppingLimits) {
         this.descriptorHeight = descriptorHeight;
         this.descriptorWidth = descriptorWidth;
         this.imageWidth = imageWidth;
@@ -43,6 +46,7 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
         descriptor = new int[descriptorLength];
         zoneHeight = imageHeight / descriptorHeight;
         zoneWidth = imageWidth / descriptorWidth;
+        this.screenLimits = croppingLimits;
 
         setupRenderscript(context);
     }
@@ -55,7 +59,8 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
         yuvToRGB.forEach(rgbAllocation);
         Log.d("KeyframeExtractor", "Attempting to crop allocation");
 
-        rgbCroppedAllocation.copy2DRangeFrom(0, 0, 320, 480, rgbAllocation, 318, 0);
+        rgbCroppedAllocation.copy2DRangeFrom(0, 0, screenLimits.getWidth(), screenLimits.getHeight(),
+                                             rgbAllocation, screenLimits.left, screenLimits.top);
         Log.d("KeyframeExtractor", "cropped allocation");
         keyFrameAllocation.copyFrom(emptyDescriptor);
         keyframeScript.set_gIn(rgbCroppedAllocation);
@@ -93,8 +98,8 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
         tbRGB.setY(imageHeight);
 
         Type.Builder tbRGBCrop = new Type.Builder(rs, Element.U8_4(rs));
-        tbRGBCrop.setX(320);
-        tbRGBCrop.setY(480);
+        tbRGBCrop.setX(screenLimits.getWidth());
+        tbRGBCrop.setY(screenLimits.getHeight());
 
         Type.Builder tbKeyframe = new Type.Builder(rs, Element.I32(rs));
         tbKeyframe.setX(descriptorLength);
@@ -105,7 +110,7 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
         keyFrameAllocation = Allocation.createTyped(rs, tbKeyframe.create(), Allocation.USAGE_SCRIPT);
 
 //        keyframeScript.invoke_setup2(descriptorWidth, descriptorHeight, imageWidth, imageHeight);
-        keyframeScript.invoke_setup2(descriptorWidth, descriptorHeight, 320, 480);
+        keyframeScript.invoke_setup2(descriptorWidth, descriptorHeight, screenLimits.getWidth(), screenLimits.getHeight());
         keyframeScript.set_gScript(keyframeScript);
 
     }

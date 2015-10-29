@@ -22,6 +22,7 @@ import cl.niclabs.moviedetector.descriptors.KeyframeDescriptor;
 import cl.niclabs.moviedetector.descriptors.KeyframeExtractor;
 import cl.niclabs.moviedetector.descriptors.VideoDescriptor;
 import cl.niclabs.moviedetector.http.SearchRequest;
+import cl.niclabs.moviedetector.utils.ScreenBoundaries;
 
 
 /**
@@ -103,6 +104,7 @@ public class CameraPreviewFragment extends Fragment{
                     // fetch data
                     recordButton.setVisibility(View.GONE);
                     progressBar.setVisibility(View.VISIBLE);
+                    descriptorExtractor = initializeDescriptorExtractor();
                     cameraContainer.setPreviewCallback(new VideoDescriptorExtractor());
                 } else {
                     // display error
@@ -129,9 +131,28 @@ public class CameraPreviewFragment extends Fragment{
         cameraContainer.startCamera();
         cameraContainer.startPreview();
 //        descriptorExtractor = new GrayHistogramExtractor(getActivity(), cameraContainer.getImageWidth(), cameraContainer.getImageHeight());
-        descriptorExtractor = new KeyframeExtractor(getActivity(), 10, 10,
+
+    }
+
+    private ImageDescriptorExtractor initializeDescriptorExtractor(){
+        int left = screenLimits.getLeftLimit();
+        int right = screenLimits.getRightLimit();
+        int top = screenLimits.getTopLimit();
+        int bottom = screenLimits.getBottomLimit();
+
+        int screenWidth = cameraContainer.getRight();
+        int screenHeight = cameraContainer.getBottom();
+        int cameraWidth = cameraContainer.getImageWidth();
+        int cameraHeight = cameraContainer.getImageHeight();
+        left = (int) (cameraWidth / ((double) screenWidth) * left);
+        right = (int) (cameraWidth / ((double) screenWidth) * right);
+        top = (int) (cameraHeight / ((double) screenHeight) * top);
+        bottom = (int) (cameraHeight / ((double) screenHeight) * bottom);
+        ScreenBoundaries boundaries = new ScreenBoundaries(left, right, top, bottom);
+        return new KeyframeExtractor(getActivity(), 10, 10,
                 cameraContainer.getImageWidth(),
-                cameraContainer.getImageHeight());
+                cameraContainer.getImageHeight(),
+                boundaries);
     }
 
     @Override
