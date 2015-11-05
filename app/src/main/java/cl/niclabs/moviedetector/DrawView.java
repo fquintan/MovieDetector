@@ -3,20 +3,30 @@ package cl.niclabs.moviedetector;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 public class DrawView extends View {
 
+    static final String TAG = DrawView.class.getSimpleName();
+
     Point point1, point3;
     Point point2, point4;
 
+    private final int defaultWidth = 600;
+    private final int defaultHeight = 400;
+    private final int defaultCenterX = defaultWidth/2;
+    private final int defaultCenterY = defaultHeight/2;
     /**
      * point1 and point 3 are of same group and same as point 2 and point4
      */
@@ -27,69 +37,53 @@ public class DrawView extends View {
     // variable to know what ball is being dragged
     Paint paint;
     Canvas canvas;
+    private Bitmap bitmap;
 
-    public DrawView(Context context) {
-        super(context);
+    public void setupPoints(int centerX, int centerY, int width, int height){
         paint = new Paint();
         setFocusable(true); // necessary for getting the touch events
         canvas = new Canvas();
-        // setting the start point for the balls
-        point1 = new Point();
-        point1.x = 50;
-        point1.y = 20;
 
-        point2 = new Point();
-        point2.x = 150;
-        point2.y = 20;
-
-        point3 = new Point();
-        point3.x = 150;
-        point3.y = 120;
-
-        point4 = new Point();
-        point4.x = 50;
-        point4.y = 120;
+//        // setting the start point for the balls
+        point1 = new Point(centerX - (width/2), centerY - (height/2));
+        point2 = new Point(centerX + (width/2), centerY - (height/2));
+        point3 = new Point(centerX + (width/2), centerY + (height/2));
+        point4 = new Point(centerX - (width/2), centerY + (height/2));
+//        point1 = new Point(20, 20);
+//        point2 = new Point(1059, 20);
+//        point3 = new Point(1050, 500);
+//        point4 = new Point(20, 500);
 
         // declare each ball with the ColorBall class
-        colorballs.add(new ColorBall(context, R.drawable.red_dot, point1));
-        colorballs.add(new ColorBall(context, R.drawable.red_dot, point2));
-        colorballs.add(new ColorBall(context, R.drawable.red_dot, point3));
-        colorballs.add(new ColorBall(context, R.drawable.red_dot, point4));
+        colorballs.clear();
+        colorballs.add(new ColorBall(bitmap, point1, 0));
+        colorballs.add(new ColorBall(bitmap, point2, 1));
+        colorballs.add(new ColorBall(bitmap, point3, 2));
+        colorballs.add(new ColorBall(bitmap, point4, 3));
+        invalidate();
+    }
 
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        this.setupPoints(w/2, h/2, defaultWidth, defaultHeight);
+    }
+
+    public DrawView(Context context) {
+        super(context);
+        bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.red_dot);
+        setupPoints(defaultCenterX, defaultCenterY, defaultWidth, defaultHeight);
     }
 
     public DrawView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.red_dot);
+        setupPoints(defaultCenterX, defaultCenterY, defaultWidth, defaultHeight);
     }
 
     public DrawView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        paint = new Paint();
-        setFocusable(true); // necessary for getting the touch events
-        canvas = new Canvas();
-        // setting the start point for the balls
-        point1 = new Point();
-        point1.x = 50;
-        point1.y = 20;
-
-        point2 = new Point();
-        point2.x = 150;
-        point2.y = 20;
-
-        point3 = new Point();
-        point3.x = 150;
-        point3.y = 120;
-
-        point4 = new Point();
-        point4.x = 50;
-        point4.y = 120;
-
-        // declare each ball with the ColorBall class
-        colorballs.add(new ColorBall(context, R.drawable.red_dot, point1));
-        colorballs.add(new ColorBall(context, R.drawable.red_dot, point2));
-        colorballs.add(new ColorBall(context, R.drawable.red_dot, point3));
-        colorballs.add(new ColorBall(context, R.drawable.red_dot, point4));
-
+        bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.red_dot);
+        setupPoints(defaultCenterX, defaultCenterY, defaultWidth, defaultHeight);
     }
 
     // the method that draws the balls
@@ -119,25 +113,25 @@ public class DrawView extends View {
                             + colorballs.get(3).getWidthOfBall() / 2, point2.y
                             + colorballs.get(1).getWidthOfBall() / 2, paint);
         }
-        BitmapDrawable mBitmap;
-        mBitmap = new BitmapDrawable();
 
         // draw the balls on the canvas
         for (ColorBall ball : colorballs) {
             canvas.drawBitmap(ball.getBitmap(), ball.getX(), ball.getY(),
                     new Paint());
-
         }
+        shade_region_between_points();
+
     }
+
 
     // events when touching the screen
     public boolean onTouchEvent(MotionEvent event) {
-        int eventaction = event.getAction();
+        int eventAction = event.getAction();
 
         int X = (int) event.getX();
         int Y = (int) event.getY();
 
-        switch (eventaction) {
+        switch (eventAction) {
 
             case MotionEvent.ACTION_DOWN: // touch down so check if the finger is on
                 // a ball
@@ -146,23 +140,17 @@ public class DrawView extends View {
                 for (ColorBall ball : colorballs) {
                     // check if inside the bounds of the ball (circle)
                     // get the center for the ball
-//                    Utils.logd("Id : " + ball.getID());
-//                    Utils.logd("getX : " + ball.getX() + " getY() : " + ball.getY());
                     int centerX = ball.getX() + ball.getWidthOfBall();
                     int centerY = ball.getY() + ball.getHeightOfBall();
-                    paint.setColor(Color.CYAN);
+//                    paint.setColor(Color.CYAN);
                     // calculate the radius from the touch to the center of the ball
                     double radCircle = Math
                             .sqrt((double) (((centerX - X) * (centerX - X)) + (centerY - Y)
                                     * (centerY - Y)));
 
-//                    Utils.logd("X : " + X + " Y : " + Y + " centerX : " + centerX
-//                            + " CenterY : " + centerY + " radCircle : " + radCircle);
-
                     if (radCircle < ball.getWidthOfBall()) {
 
                         balID = ball.getID();
-//                        Utils.logd("Selected ball : " + balID);
                         if (balID == 1 || balID == 3) {
                             groupId = 2;
                             canvas.drawRect(point1.x, point3.y, point3.x, point1.y,
@@ -188,7 +176,7 @@ public class DrawView extends View {
                     colorballs.get(balID).setX(X);
                     colorballs.get(balID).setY(Y);
 
-                    paint.setColor(Color.CYAN);
+//                    paint.setColor(Color.CYAN);
 
                     if (groupId == 1) {
                         colorballs.get(1).setX(colorballs.get(0).getX());
@@ -197,6 +185,7 @@ public class DrawView extends View {
                         colorballs.get(3).setY(colorballs.get(0).getY());
                         canvas.drawRect(point1.x, point3.y, point3.x, point1.y,
                                 paint);
+//                        shade_region_between_points();
                     } else {
                         colorballs.get(0).setX(colorballs.get(1).getX());
                         colorballs.get(0).setY(colorballs.get(3).getY());
@@ -223,20 +212,21 @@ public class DrawView extends View {
     }
 
     public void shade_region_between_points() {
-        canvas.drawRect(point1.x, point3.y, point3.x, point1.y, paint);
+//        canvas.drawRect(point1.x, point3.y, point3.x, point1.y, paint);
+        canvas.drawRect(getLeftLimit(), getTopLimit(), getRightLimit(), getBottomLimit(), paint);
     }
 
     public int getTopLimit(){
-        return point1.y;
+        return Math.min(point1.y, point3.y);
     }
     public int getBottomLimit(){
-        return point3.y;
+        return Math.max(point1.y, point3.y);
     }
     public int getRightLimit(){
-        return point3.x;
+        return Math.max(point1.x, point3.x);
     }
     public int getLeftLimit(){
-        return point1.x;
+        return Math.min(point1.x, point3.x);
     }
 
 }

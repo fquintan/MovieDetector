@@ -1,6 +1,7 @@
 package cl.niclabs.moviedetector;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
@@ -8,18 +9,22 @@ import android.graphics.Point;
 public class ColorBall {
 
     Bitmap bitmap;
-    Context mContext;
     Point point;
     int id;
-    static int count = 0;
 
-    public ColorBall(Context context, int resourceId, Point point) {
-        this.id = count++;
+    public ColorBall(Context context, int resourceId, Point point, int id) {
+        this.id = id;
         bitmap = BitmapFactory.decodeResource(context.getResources(),
                 resourceId);
-        mContext = context;
         this.point = point;
     }
+
+    public ColorBall(Bitmap bitmap, Point point, int id){
+        this.bitmap = bitmap;
+        this.point = point;
+        this.id = id;
+    }
+
 
     public int getWidthOfBall() {
         return bitmap.getWidth();

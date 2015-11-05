@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -118,6 +119,11 @@ public class CameraPreviewFragment extends Fragment{
         Context context = getActivity();
         cameraContainer = new CameraContainer(context, new NullPreviewCallback());
         screenLimits = (DrawView) view.findViewById(R.id.screen_limits);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int screenWidth = displayMetrics.widthPixels;
+        int screenHeight = displayMetrics.heightPixels;
+//        screenLimits.setupPoints(getActivity(), screenWidth/2, screenHeight/2, 300, 200);
 
         return view;
     }
