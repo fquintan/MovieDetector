@@ -30,7 +30,7 @@ import cl.niclabs.moviedetector.utils.ScreenBoundaries;
  * A placeholder fragment containing a simple view.
  */
 public class CameraPreviewFragment extends Fragment{
-    private static final String TAG = CameraPreviewFragment.class.getSimpleName();
+    private static final String TAG = CameraPreviewFragment.class.getCanonicalName();
 
     CameraContainer cameraContainer;
     ImageDescriptorExtractor descriptorExtractor;
@@ -117,7 +117,13 @@ public class CameraPreviewFragment extends Fragment{
         progressBar.setIndeterminate(false);
         progressBar.setMax((int) VideoDescriptorExtractor.max_time);
         Context context = getActivity();
+        if (cameraContainer != null){
+            cameraContainer.stopCameraPreview();
+            cameraContainer.releaseCamera();
+        }
         cameraContainer = new CameraContainer(context, new NullPreviewCallback());
+        FrameLayout cameraPreview = (FrameLayout) view.findViewById(R.id.camera_preview);
+        cameraPreview.addView(cameraContainer);
         screenLimits = (DrawView) view.findViewById(R.id.screen_limits);
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -128,17 +134,7 @@ public class CameraPreviewFragment extends Fragment{
         return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume");
-        FrameLayout cameraPreview = (FrameLayout) getView().findViewById(R.id.camera_preview);
-        cameraPreview.addView(cameraContainer);
-        cameraContainer.startCamera();
-        cameraContainer.startPreview();
-//        descriptorExtractor = new GrayHistogramExtractor(getActivity(), cameraContainer.getImageWidth(), cameraContainer.getImageHeight());
 
-    }
 
     private ImageDescriptorExtractor initializeDescriptorExtractor(){
         int left = screenLimits.getLeftLimit();
@@ -162,15 +158,37 @@ public class CameraPreviewFragment extends Fragment{
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d(TAG, "onDestroyView");
+        cameraContainer.stopCameraPreview();
+        cameraContainer.releaseCamera();
+        cameraContainer = null;
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         Log.d(TAG, "OnPause");
-        cameraContainer.stopPreviewAndFreeCamera();
+        cameraContainer.stopCameraPreview();
+        cameraContainer.releaseCamera();
+//        cameraContainer.setVisibility(View.GONE);
         View view = getView();
         FrameLayout cameraPreview = (FrameLayout) view.findViewById(R.id.camera_preview);
         cameraPreview.removeAllViews();
 //        cameraContainer = null;
+    }
 
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume");
+        FrameLayout cameraPreview = (FrameLayout) getView().findViewById(R.id.camera_preview);
+        if (cameraPreview.getChildCount() == 0){
+            cameraPreview.addView(cameraContainer);
+        }
+//        cameraContainer.setVisibility(View.VISIBLE);
+        cameraContainer.startCamera();
+        cameraContainer.startCameraPreview();
     }
 }

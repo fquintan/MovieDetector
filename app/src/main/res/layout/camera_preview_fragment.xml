@@ -13,45 +13,14 @@
         android:id="@+id/camera_preview"
 
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-    />
+        android:layout_height="match_parent" />
 
     <cl.niclabs.moviedetector.DrawView
         android:id="@+id/screen_limits"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-<!--    <View
-        android:id="@+id/transparent_window"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:layout_centerInParent="true"
-        android:background="@android:color/transparent" />
 
-    <View
-        android:id="@+id/black_top_box"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/transparent_window"
-        android:background="@android:color/background_dark"/>
-    <View
-        android:id="@+id/black_bottom_box"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/transparent_window"
-        android:background="@android:color/background_dark"/>
-    <View
-        android:id="@+id/black_left_box"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_toLeftOf="@id/transparent_window"
-        android:background="@android:color/background_dark"/>
-    <View
-        android:id="@+id/black_right_box"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_toRightOf="@id/transparent_window"
-        android:background="@android:color/background_dark"/>-->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
