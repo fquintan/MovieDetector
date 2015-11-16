@@ -18,6 +18,8 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import cl.niclabs.moviedetector.descriptors.EdgeHistogramDescriptor;
+import cl.niclabs.moviedetector.descriptors.EdgeHistogramExtractor;
 import cl.niclabs.moviedetector.descriptors.ImageDescriptorExtractor;
 import cl.niclabs.moviedetector.descriptors.KeyframeDescriptor;
 import cl.niclabs.moviedetector.descriptors.KeyframeExtractor;
@@ -40,6 +42,7 @@ public class CameraPreviewFragment extends Fragment{
 
 
     private class VideoDescriptorExtractor implements Camera.PreviewCallback{
+//        private VideoDescriptor<EdgeHistogramDescriptor, Integer> videoDescriptor;
         private VideoDescriptor<KeyframeDescriptor, Integer> videoDescriptor;
         private long startTime;
         private long lastDescriptor = 0;
@@ -62,6 +65,7 @@ public class CameraPreviewFragment extends Fragment{
                     lastDescriptor = currentTime;
 //                    GrayHistogramDescriptor descriptor = (GrayHistogramDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
                     KeyframeDescriptor descriptor = (KeyframeDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
+//                    EdgeHistogramDescriptor descriptor = (EdgeHistogramDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
                     videoDescriptor.addDescriptor(descriptor);
                 }
             }
@@ -151,10 +155,15 @@ public class CameraPreviewFragment extends Fragment{
         top = (int) (cameraHeight / ((double) screenHeight) * top);
         bottom = (int) (cameraHeight / ((double) screenHeight) * bottom);
         ScreenBoundaries boundaries = new ScreenBoundaries(left, right, top, bottom);
+
         return new KeyframeExtractor(getActivity(), 10, 10,
                 cameraContainer.getImageWidth(),
                 cameraContainer.getImageHeight(),
                 boundaries);
+//        return new EdgeHistogramExtractor(getActivity(),
+//                cameraContainer.getImageWidth(),
+//                cameraContainer.getImageHeight(),
+//                boundaries);
     }
 
     @Override

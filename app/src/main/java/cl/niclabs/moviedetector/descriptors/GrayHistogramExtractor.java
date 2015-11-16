@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.v8.renderscript.*;
 import android.util.Log;
 
-import fquintan.renderscripttest.ScriptC_GrayZoneHist;
+import cl.niclabs.moviedetector.ScriptC_GrayZoneHist;
 import fquintan.renderscripttest.ScriptC_decodeYUV;
 
 /**
@@ -87,7 +87,7 @@ public class GrayHistogramExtractor implements ImageDescriptorExtractor{
         histOutAllocation = Allocation.createTyped(scriptContext, histOutType.setX(histogramLength).create(),
                 Allocation.USAGE_SCRIPT);
 
-        histogramExtractor.invoke_setup(horizontalZones, verticalZones, imageWidth, imageHeight, bins);
+        histogramExtractor.invoke_setup_histogram(horizontalZones, verticalZones, imageWidth, imageHeight, bins);
     }
 
 
