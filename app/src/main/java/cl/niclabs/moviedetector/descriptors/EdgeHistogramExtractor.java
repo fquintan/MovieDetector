@@ -52,6 +52,7 @@ public class EdgeHistogramExtractor implements ImageDescriptorExtractor {
     private Allocation grayAllocation;
     private Allocation grayCroppedAllocation;
     private Allocation reducedImageAllocation;
+    private Allocation reducedImage2DAllocation;
     private Allocation blockEnergyAllocation;
     private Allocation histogramAllocation;
 
@@ -88,7 +89,13 @@ public class EdgeHistogramExtractor implements ImageDescriptorExtractor {
         reducer.set_gOut(reducedImageAllocation);
         reducer.bind_gOutarray(reducedImageAllocation);
         reducer.invoke_compute_reduce();
-
+        int[] reducedImage = new int[totalSubBlocks];
+        reducedImageAllocation.copyTo(reducedImage);
+        for (int i = 0; i < reducedImage.length; i++) {
+            reducedImage[i] = reducedImage[i] / (subBlockWidth * subBlockHeight);
+        }
+        reducedImage2DAllocation.copy2DRangeFrom(0,0,totalSubBlocksW, totalSubBlocksH, reducedImage);
+        
         return null;
     }
 
@@ -112,7 +119,10 @@ public class EdgeHistogramExtractor implements ImageDescriptorExtractor {
         Type.Builder tbReduced = new Type.Builder(rs, Element.I32(rs));
         tbReduced.setX(totalSubBlocks);
         reducedImageAllocation = Allocation.createTyped(rs, tbReduced.create(), Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
-
+        Type.Builder tbReduced2D = new Type.Builder(rs, Element.I32(rs));
+        tbReduced2D.setX(totalSubBlocksW);
+        tbReduced2D.setY(totalSubBlocksH);
+        reducedImage2DAllocation = Allocation.createTyped(rs, tbReduced2D.create(), Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
     }
 
 
