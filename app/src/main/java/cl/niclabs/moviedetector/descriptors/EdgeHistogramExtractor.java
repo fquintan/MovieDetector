@@ -7,6 +7,7 @@ import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.Type;
 
 import cl.niclabs.moviedetector.ScriptC_borderDetector;
+import cl.niclabs.moviedetector.ScriptC_edgeHist;
 import cl.niclabs.moviedetector.ScriptC_reducer;
 import cl.niclabs.moviedetector.utils.ScreenBoundaries;
 
@@ -53,6 +54,7 @@ public class EdgeHistogramExtractor implements ImageDescriptorExtractor {
     private RenderScript rs;
     private ScriptC_reducer reducer;
     private ScriptC_borderDetector detector;
+    private ScriptC_edgeHist edgeHist;
 
 //    private Allocation yuvAllocation;
     private Allocation grayAllocation;
@@ -105,8 +107,12 @@ public class EdgeHistogramExtractor implements ImageDescriptorExtractor {
         detector.set_gIn(reducedImage2DAllocation);
         detector.set_gOut(blockEnergyAllocation);
         detector.invoke_compute_reduce();
-        byte[] block_energies = new byte[totalBlocks];
-        blockEnergyAllocation.copyTo(block_energies);
+
+        edgeHist.set_gIn(blockEnergyAllocation);
+        edgeHist.set_gOut(histogramAllocation);
+        edgeHist.bind_gOutarray(histogramAllocation);
+        edgeHist.invoke_compute_edge_histogram();
+
 
 
 
@@ -122,8 +128,12 @@ public class EdgeHistogramExtractor implements ImageDescriptorExtractor {
         reducer.set_gScript(reducer);
 
         detector = new ScriptC_borderDetector(rs);
-        detector.invoke_setup_detector(totalSubBlocksW, totalSubBlocksH, croppedImageWidth, croppedImageHeight);
+        detector.invoke_setup_detector(threshold);
         detector.set_gScript(detector);
+
+        edgeHist = new ScriptC_edgeHist(rs);
+        edgeHist.invoke_setup_edge_histogram(numberOfZonesW, numberOfZonesH, totalBlocksW, totalBlocksH);
+        edgeHist.set_gScript(edgeHist);
 
         Element decoderOutElement = Element.U8(rs);
         Type.Builder decoderOutType = new Type.Builder(rs, decoderOutElement);
@@ -151,6 +161,9 @@ public class EdgeHistogramExtractor implements ImageDescriptorExtractor {
         tbEnergy.setY(totalBlocksH);
         blockEnergyAllocation = Allocation.createTyped(rs, tbEnergy.create(), Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
 
+        Type.Builder tbHist = new Type.Builder(rs, Element.U8(rs));
+        tbHist.setX(descriptorLength);
+        histogramAllocation = Allocation.createTyped(rs, tbHist.create(), Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
 
     }
 

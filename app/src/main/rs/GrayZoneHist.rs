@@ -25,11 +25,13 @@ void setup_histogram(int32_t n_xzones, int32_t n_yzones, int32_t imgWidth, int32
 
 void root(const uchar *v_in, uint32_t x,  uint32_t y) {
     int32_t bin = *v_in / binMultiplier;
-    int32_t xzone = x / zoneWidth;
-    int32_t yzone = y / zoneHeigth;
-    int32_t index = (yzone * bins * xzones) + (xzone * bins) + bin;
-    volatile int32_t* addr = gOutarray + index;
-    rsAtomicInc(addr);
+    if (bin < 5){
+        int32_t xzone = x / zoneWidth;
+        int32_t yzone = y / zoneHeigth;
+        int32_t index = (yzone * bins * xzones) + (xzone * bins) + bin;
+        volatile int32_t* addr = gOutarray + index;
+        rsAtomicInc(addr);
+    }
 }
 
 void compute_histogram() {
