@@ -42,15 +42,15 @@ public class CameraPreviewFragment extends Fragment{
 
 
     private class VideoDescriptorExtractor implements Camera.PreviewCallback{
-//        private VideoDescriptor<EdgeHistogramDescriptor, Integer> videoDescriptor;
-        private VideoDescriptor<KeyframeDescriptor, Integer> videoDescriptor;
+        private VideoDescriptor<EdgeHistogramDescriptor, Integer> videoDescriptor;
+//        private VideoDescriptor<KeyframeDescriptor, Integer> videoDescriptor;
         private long startTime;
         private long lastDescriptor = 0;
         private int frameCounter = -1;
         private static final long max_time = 5000;
         private static final long segmentation = 250;
         public VideoDescriptorExtractor(){
-            videoDescriptor = new VideoDescriptor<KeyframeDescriptor, Integer>(Integer.class);
+            videoDescriptor = new VideoDescriptor<EdgeHistogramDescriptor, Integer>(Integer.class);
             startTime = System.currentTimeMillis();
         }
 
@@ -64,8 +64,8 @@ public class CameraPreviewFragment extends Fragment{
                 if (currentTime - lastDescriptor > segmentation){
                     lastDescriptor = currentTime;
 //                    GrayHistogramDescriptor descriptor = (GrayHistogramDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
-                    KeyframeDescriptor descriptor = (KeyframeDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
-//                    EdgeHistogramDescriptor descriptor = (EdgeHistogramDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
+//                    KeyframeDescriptor descriptor = (KeyframeDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
+                    EdgeHistogramDescriptor descriptor = (EdgeHistogramDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
                     videoDescriptor.addDescriptor(descriptor);
                 }
             }
@@ -156,14 +156,14 @@ public class CameraPreviewFragment extends Fragment{
         bottom = (int) (cameraHeight / ((double) screenHeight) * bottom);
         ScreenBoundaries boundaries = new ScreenBoundaries(left, right, top, bottom);
 
-        return new KeyframeExtractor(getActivity(), 10, 10,
-                cameraContainer.getImageWidth(),
-                cameraContainer.getImageHeight(),
-                boundaries);
-//        return new EdgeHistogramExtractor(getActivity(),
+//        return new KeyframeExtractor(getActivity(), 10, 10,
 //                cameraContainer.getImageWidth(),
 //                cameraContainer.getImageHeight(),
 //                boundaries);
+        return new EdgeHistogramExtractor(getActivity(),
+                cameraContainer.getImageWidth(),
+                cameraContainer.getImageHeight(),
+                boundaries);
     }
 
     @Override
