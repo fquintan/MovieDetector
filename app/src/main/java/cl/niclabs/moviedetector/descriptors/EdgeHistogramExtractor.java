@@ -6,6 +6,7 @@ import android.support.v8.renderscript.Element;
 import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.Type;
 
+import cl.niclabs.moviedetector.ScriptC_borderDetector;
 import cl.niclabs.moviedetector.ScriptC_reducer;
 import cl.niclabs.moviedetector.utils.ScreenBoundaries;
 
@@ -28,8 +29,12 @@ public class EdgeHistogramExtractor implements ImageDescriptorExtractor {
     int numberOfZonesW = 4;
     int numberOfZonesH = 4;
 
-    int totalSubBlocksW = numberOfBlocksW * numberOfZonesW * 2;
-    int totalSubBlocksH = numberOfBlocksH * numberOfZonesH * 2;
+    int totalBlocksW = numberOfBlocksW * numberOfZonesW;
+    int totalBlocksH = numberOfBlocksH * numberOfZonesH;
+    int totalBlocks = totalBlocksH * totalBlocksW;
+
+    int totalSubBlocksW = totalBlocksW * 2;
+    int totalSubBlocksH = totalBlocksH * 2;
     int totalSubBlocks = totalSubBlocksH * totalSubBlocksW;
 
     int threshold = 5;
@@ -47,6 +52,7 @@ public class EdgeHistogramExtractor implements ImageDescriptorExtractor {
 
     private RenderScript rs;
     private ScriptC_reducer reducer;
+    private ScriptC_borderDetector detector;
 
 //    private Allocation yuvAllocation;
     private Allocation grayAllocation;
@@ -95,15 +101,30 @@ public class EdgeHistogramExtractor implements ImageDescriptorExtractor {
             reducedImage[i] = reducedImage[i] / (subBlockWidth * subBlockHeight);
         }
         reducedImage2DAllocation.copy2DRangeFrom(0,0,totalSubBlocksW, totalSubBlocksH, reducedImage);
-        
+
+        detector.set_gIn(reducedImage2DAllocation);
+        detector.set_gOut(blockEnergyAllocation);
+        detector.invoke_compute_reduce();
+        byte[] block_energies = new byte[totalBlocks];
+        blockEnergyAllocation.copyTo(block_energies);
+
+
+
+
         return null;
     }
 
     private void setupRenderscript(Context context){
         rs = RenderScript.create(context);
+
         reducer = new ScriptC_reducer(rs);
-        reducer.invoke_setup_reducer(totalSubBlocksW , totalSubBlocksH, croppedImageWidth, croppedImageHeight);
+        reducer.invoke_setup_reducer(totalSubBlocksW, totalSubBlocksH, croppedImageWidth, croppedImageHeight);
         reducer.set_gScript(reducer);
+
+        detector = new ScriptC_borderDetector(rs);
+        detector.invoke_setup_detector(totalSubBlocksW, totalSubBlocksH, croppedImageWidth, croppedImageHeight);
+        detector.set_gScript(detector);
+
         Element decoderOutElement = Element.U8(rs);
         Type.Builder decoderOutType = new Type.Builder(rs, decoderOutElement);
         grayAllocation = Allocation.createTyped(rs,
@@ -119,10 +140,18 @@ public class EdgeHistogramExtractor implements ImageDescriptorExtractor {
         Type.Builder tbReduced = new Type.Builder(rs, Element.I32(rs));
         tbReduced.setX(totalSubBlocks);
         reducedImageAllocation = Allocation.createTyped(rs, tbReduced.create(), Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
+
         Type.Builder tbReduced2D = new Type.Builder(rs, Element.I32(rs));
         tbReduced2D.setX(totalSubBlocksW);
         tbReduced2D.setY(totalSubBlocksH);
         reducedImage2DAllocation = Allocation.createTyped(rs, tbReduced2D.create(), Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
+
+        Type.Builder tbEnergy = new Type.Builder(rs, Element.U8(rs));
+        tbEnergy.setX(totalBlocksW);
+        tbEnergy.setY(totalBlocksH);
+        blockEnergyAllocation = Allocation.createTyped(rs, tbEnergy.create(), Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
+
+
     }
 
 
