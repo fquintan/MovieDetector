@@ -1,5 +1,6 @@
 package cl.niclabs.moviedetector;
 
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
@@ -17,9 +18,11 @@ public class MainActivity extends ActionBarActivity implements QueryResultsFragm
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-        CameraPreviewFragment cameraPreviewFragment = new CameraPreviewFragment();
-        transaction.add(R.id.fragment_container, cameraPreviewFragment);
+//        Fragment fragment = new CameraPreviewFragment();
+        Fragment fragment = new VideoRecordFragment();
+        transaction.add(R.id.fragment_container, fragment);
         transaction.commit();
+
     }
 
 
