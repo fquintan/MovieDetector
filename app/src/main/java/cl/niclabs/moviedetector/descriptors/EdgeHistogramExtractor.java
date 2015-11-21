@@ -81,7 +81,7 @@ public class EdgeHistogramExtractor implements ImageDescriptorExtractor {
         croppedImageHeight = zoneHeight * numberOfZonesH;
         croppedImageWidth = zoneWidth * numberOfZonesW;
 
-        descriptorLength = numberOfZonesH * numberOfBlocksW * 5;
+        descriptorLength = numberOfZonesH * numberOfZonesW * 5;
         emptyDescriptor = new int[descriptorLength];
         setupRenderscript(context);
     }
@@ -102,7 +102,7 @@ public class EdgeHistogramExtractor implements ImageDescriptorExtractor {
         for (int i = 0; i < reducedImage.length; i++) {
             reducedImage[i] = reducedImage[i] / (subBlockWidth * subBlockHeight);
         }
-        reducedImage2DAllocation.copy2DRangeFrom(0,0,totalSubBlocksW, totalSubBlocksH, reducedImage);
+        reducedImage2DAllocation.copy2DRangeFrom(0, 0, totalSubBlocksW, totalSubBlocksH, reducedImage);
 
         detector.set_gIn(reducedImage2DAllocation);
         detector.set_gOut(blockEnergyAllocation);
@@ -113,11 +113,15 @@ public class EdgeHistogramExtractor implements ImageDescriptorExtractor {
         edgeHist.bind_gOutarray(histogramAllocation);
         edgeHist.invoke_compute_edge_histogram();
 
-
-
-
-
-        return null;
+        int[] histogram = new int[descriptorLength];
+        histogramAllocation.copyTo(histogram);
+        int blocksPerZone = numberOfBlocksH * numberOfBlocksW;
+        double[] descriptor = new double[descriptorLength];
+        for(int i = 0; i < histogram.length; i ++){
+            descriptor[i] = ((float) histogram[i]) / blocksPerZone;
+        }
+        return new EdgeHistogramDescriptor(descriptor, timestamp, frameNumber,
+                numberOfZonesW, numberOfZonesH, numberOfBlocksW, numberOfBlocksH, threshold);
     }
 
     private void setupRenderscript(Context context){
@@ -161,7 +165,7 @@ public class EdgeHistogramExtractor implements ImageDescriptorExtractor {
         tbEnergy.setY(totalBlocksH);
         blockEnergyAllocation = Allocation.createTyped(rs, tbEnergy.create(), Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
 
-        Type.Builder tbHist = new Type.Builder(rs, Element.U8(rs));
+        Type.Builder tbHist = new Type.Builder(rs, Element.I32(rs));
         tbHist.setX(descriptorLength);
         histogramAllocation = Allocation.createTyped(rs, tbHist.create(), Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
 

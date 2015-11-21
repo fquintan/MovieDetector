@@ -20,6 +20,15 @@ public class EdgeHistogramDescriptor extends ImageDescriptor {
         super(descriptor, timestamp, frameNumber);
     }
 
+    public EdgeHistogramDescriptor(double[] descriptor, long timestamp, int frameNumber, int zones_x, int zones_y, int subdivisions_x, int subdivisions_y, int threshold) {
+        super(descriptor, timestamp, frameNumber);
+        this.zones_x = zones_x;
+        this.zones_y = zones_y;
+        this.subdivisions_x = subdivisions_x;
+        this.subdivisions_y = subdivisions_y;
+        this.threshold = threshold;
+    }
+
     @Override
     public String getType() {
         return "EdgeHistogram";

@@ -42,7 +42,7 @@ public class CameraPreviewFragment extends Fragment{
 
 
     private class VideoDescriptorExtractor implements Camera.PreviewCallback{
-        private VideoDescriptor<EdgeHistogramDescriptor, Integer> videoDescriptor;
+        private VideoDescriptor<EdgeHistogramDescriptor, Double> videoDescriptor;
 //        private VideoDescriptor<KeyframeDescriptor, Integer> videoDescriptor;
         private long startTime;
         private long lastDescriptor = 0;
@@ -50,7 +50,8 @@ public class CameraPreviewFragment extends Fragment{
         private static final long max_time = 5000;
         private static final long segmentation = 250;
         public VideoDescriptorExtractor(){
-            videoDescriptor = new VideoDescriptor<EdgeHistogramDescriptor, Integer>(Integer.class);
+            videoDescriptor = new VideoDescriptor<EdgeHistogramDescriptor, Double>(Double.class);
+//            videoDescriptor = new VideoDescriptor<KeyframeDescriptor, Integer>(Integer.class);
             startTime = System.currentTimeMillis();
         }
 
