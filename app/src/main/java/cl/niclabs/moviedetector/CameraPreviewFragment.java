@@ -21,10 +21,8 @@ import android.widget.Toast;
 import cl.niclabs.moviedetector.descriptors.EdgeHistogramDescriptor;
 import cl.niclabs.moviedetector.descriptors.EdgeHistogramExtractor;
 import cl.niclabs.moviedetector.descriptors.ImageDescriptorExtractor;
-import cl.niclabs.moviedetector.descriptors.KeyframeDescriptor;
-import cl.niclabs.moviedetector.descriptors.KeyframeExtractor;
 import cl.niclabs.moviedetector.descriptors.VideoDescriptor;
-import cl.niclabs.moviedetector.http.SearchRequest;
+import cl.niclabs.moviedetector.http.FromDescriptorsSearchRequest;
 import cl.niclabs.moviedetector.utils.ScreenBoundaries;
 
 
@@ -73,7 +71,7 @@ public class CameraPreviewFragment extends Fragment{
             else{
                 cameraContainer.setPreviewCallback(new NullPreviewCallback());
                 QueryResultsFragment queryResultsFragment = new QueryResultsFragment();
-                new SearchRequest(videoDescriptor, queryResultsFragment).execute();
+                new FromDescriptorsSearchRequest(videoDescriptor, queryResultsFragment).execute();
 
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();

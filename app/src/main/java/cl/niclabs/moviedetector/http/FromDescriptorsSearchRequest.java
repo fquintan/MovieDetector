@@ -16,9 +16,9 @@ import cl.niclabs.moviedetector.descriptors.VideoDescriptor;
 /**
  * Created by felipe on 29-09-15.
  */
-public class SearchRequest {
+public class FromDescriptorsSearchRequest {
 
-    private static final String TAG = SearchRequest.class.getSimpleName();
+    private static final String TAG = FromDescriptorsSearchRequest.class.getSimpleName();
     private static final String FAIL = "FAIL";
 
 //    private final String queryURL = "http://192.168.0.10:5000/search/api/search_by_descriptor";
@@ -26,7 +26,7 @@ public class SearchRequest {
     private VideoDescriptor videoDescriptor;
     private ResponseHandler responseHandler;
 
-    public SearchRequest(VideoDescriptor videoDescriptor, ResponseHandler responseHandler) {
+    public FromDescriptorsSearchRequest(VideoDescriptor videoDescriptor, ResponseHandler responseHandler) {
         this.videoDescriptor = videoDescriptor;
         this.responseHandler = responseHandler;
     }
