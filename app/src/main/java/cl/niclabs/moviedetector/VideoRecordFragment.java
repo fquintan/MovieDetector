@@ -6,10 +6,13 @@ package cl.niclabs.moviedetector;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +22,9 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+
+import cl.niclabs.moviedetector.http.FromVideoSearchRequest;
+import cl.niclabs.moviedetector.http.ResponseHandler;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -59,8 +65,17 @@ public class VideoRecordFragment extends Fragment {
         if (requestCode == CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE){
             if (resultCode == getActivity().RESULT_OK){
                 Toast.makeText(getActivity(), "Sending video", Toast.LENGTH_LONG).show();
+                QueryResultsFragment queryResultsFragment = new QueryResultsFragment();
+                new FromVideoSearchRequest(videoFileUri, queryResultsFragment).execute();
+
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(R.id.fragment_container, queryResultsFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
             }
         }
+
     }
 
     private Uri getOutputMediaFileUri(){
@@ -87,8 +102,11 @@ public class VideoRecordFragment extends Fragment {
         File mediaFile;
         // For unique video file name appending current timeStamp with file name
         mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                "VID_" + timeStamp + ".mp4");
+//                "VID_" + timeStamp + ".mp4");
+            "VID_" + ".mp4");
 
         return mediaFile;
     }
+
+
 }
