@@ -18,8 +18,8 @@ public class MainActivity extends ActionBarActivity implements QueryResultsFragm
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-//        Fragment fragment = new CameraPreviewFragment();
-        Fragment fragment = new VideoRecordFragment();
+        Fragment fragment = new CameraPreviewFragment();
+//        Fragment fragment = new VideoRecordFragment();
         transaction.add(R.id.fragment_container, fragment);
         transaction.commit();
 

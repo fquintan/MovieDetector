@@ -5,6 +5,7 @@ import android.support.v8.renderscript.*;
 import android.util.Log;
 
 import cl.niclabs.moviedetector.ScriptC_GrayZoneHist;
+import cl.niclabs.moviedetector.utils.ScreenBoundaries;
 import fquintan.renderscripttest.ScriptC_decodeYUV;
 
 /**
@@ -13,10 +14,11 @@ import fquintan.renderscripttest.ScriptC_decodeYUV;
 public class GrayHistogramExtractor implements ImageDescriptorExtractor{
     private static final String TAG = GrayHistogramExtractor.class.getSimpleName();
 
-    public GrayHistogramExtractor(Context context, int imageHeight, int imageWidth) {
+    public GrayHistogramExtractor(Context context, int imageHeight, int imageWidth, ScreenBoundaries croppingLimits) {
         this.imageHeight = imageHeight;
         this.imageWidth = imageWidth;
         histogram = new int[histogramLength];
+        screenLimits = croppingLimits;
         setupRenderscript(context);
     }
 
@@ -25,6 +27,8 @@ public class GrayHistogramExtractor implements ImageDescriptorExtractor{
     private final int verticalZones = 2;
     private int imageHeight;
     private int imageWidth;
+
+    ScreenBoundaries screenLimits;
 
     private final int histogramLength = bins * horizontalZones * verticalZones;
 
@@ -35,14 +39,15 @@ public class GrayHistogramExtractor implements ImageDescriptorExtractor{
     private ScriptC_decodeYUV yuvToGrayDecoder;
     private ScriptC_GrayZoneHist histogramExtractor;
 
-    private Allocation decoderInAllocation;
     private Allocation decoderOutAllocation;
+    private Allocation croppedAllocation;
     private Allocation histOutAllocation;
 
     @Override
     public ImageDescriptor extract(byte[] frame, long timestamp, int frameNumber) {
         decoderOutAllocation.copy2DRangeFrom(0, 0, imageWidth, imageHeight, frame);
-
+        croppedAllocation.copy2DRangeFrom(0, 0, screenLimits.getWidth(), screenLimits.getHeight(),
+                decoderOutAllocation, screenLimits.left, screenLimits.top);
         histOutAllocation.copyFrom(emptyHist);
         histogramExtractor.set_gIn(decoderOutAllocation);
         histogramExtractor.set_gOut(histOutAllocation);
@@ -62,20 +67,9 @@ public class GrayHistogramExtractor implements ImageDescriptorExtractor{
     private void setupRenderscript(Context context) {
         Log.d(TAG, "setting up renderscript");
         scriptContext = RenderScript.create(context);
-//        yuvToGrayDecoder = new ScriptC_decodeYUV(scriptContext);
         histogramExtractor = new ScriptC_GrayZoneHist(scriptContext);
 
-//        Element yuvElement = Element.createPixel(scriptContext, Element.DataType.UNSIGNED_8, Element.DataKind.PIXEL_YUV);
-        // Create a new (Type).Builder object of type yuvElement
-//        Type.Builder yuvType = new Type.Builder(scriptContext, yuvElement);
-        // Set YUV format to NV21. The Decoder Outputs NV21 Surfaces
-//        yuvType.setYuvFormat(ImageFormat.NV21);
-
-//        decoderInAllocation = Allocation.createTyped(scriptContext, yuvType.setX(imageWidth).setY(imageHeight).create(),
-//                Allocation.USAGE_SCRIPT);// Allocation will be used by a script
-
         Element decoderOutElement = Element.U8(scriptContext);
-
         Type.Builder decoderOutType = new Type.Builder(scriptContext, decoderOutElement);
 
         decoderOutAllocation = Allocation.createTyped(scriptContext,
@@ -83,11 +77,17 @@ public class GrayHistogramExtractor implements ImageDescriptorExtractor{
                 Allocation.MipmapControl.MIPMAP_NONE,    // No MIPMAP
                 Allocation.USAGE_SCRIPT                 // will be used by a script
         );
+        Type.Builder croppedTB = new Type.Builder(scriptContext, Element.U8(scriptContext));
+        croppedTB.setX(screenLimits.getWidth());
+        croppedTB.setY(screenLimits.getHeight());
+        croppedAllocation = Allocation.createTyped(scriptContext, croppedTB.create(), Allocation.USAGE_SCRIPT);
+
         Type.Builder histOutType = new Type.Builder(scriptContext, Element.I32(scriptContext));
         histOutAllocation = Allocation.createTyped(scriptContext, histOutType.setX(histogramLength).create(),
                 Allocation.USAGE_SCRIPT);
 
-        histogramExtractor.invoke_setup_histogram(horizontalZones, verticalZones, imageWidth, imageHeight, bins);
+        histogramExtractor.invoke_setup_histogram(horizontalZones, verticalZones,
+                screenLimits.getWidth(), screenLimits.getHeight(), bins);
     }
 
 

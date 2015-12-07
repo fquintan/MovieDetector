@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <cl.niclabs.moviedetector.DrawView
+    <cl.niclabs.moviedetector.CropView
         android:id="@+id/screen_limits"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

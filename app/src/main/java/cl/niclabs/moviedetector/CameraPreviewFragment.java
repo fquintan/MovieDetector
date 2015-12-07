@@ -36,11 +36,12 @@ public class CameraPreviewFragment extends Fragment{
     ImageDescriptorExtractor descriptorExtractor;
     ProgressBar progressBar;
     private Button recordButton;
-    private DrawView screenLimits;
+    private CropView screenLimits;
 
 
     private class VideoDescriptorExtractor implements Camera.PreviewCallback{
         private VideoDescriptor<EdgeHistogramDescriptor, Double> videoDescriptor;
+//        private VideoDescriptor<GrayHistogramDescriptor, Double> videoDescriptor;
 //        private VideoDescriptor<KeyframeDescriptor, Integer> videoDescriptor;
         private long startTime;
         private long lastDescriptor = 0;
@@ -49,6 +50,7 @@ public class CameraPreviewFragment extends Fragment{
         private static final long segmentation = 250;
         public VideoDescriptorExtractor(){
             videoDescriptor = new VideoDescriptor<EdgeHistogramDescriptor, Double>(Double.class);
+//            videoDescriptor = new VideoDescriptor<GrayHistogramDescriptor, Double>(Double.class);
 //            videoDescriptor = new VideoDescriptor<KeyframeDescriptor, Integer>(Integer.class);
             startTime = System.currentTimeMillis();
         }
@@ -127,7 +129,7 @@ public class CameraPreviewFragment extends Fragment{
         cameraContainer = new CameraContainer(context, new NullPreviewCallback());
         FrameLayout cameraPreview = (FrameLayout) view.findViewById(R.id.camera_preview);
         cameraPreview.addView(cameraContainer);
-        screenLimits = (DrawView) view.findViewById(R.id.screen_limits);
+        screenLimits = (CropView) view.findViewById(R.id.screen_limits);
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int screenWidth = displayMetrics.widthPixels;
@@ -157,6 +159,10 @@ public class CameraPreviewFragment extends Fragment{
 
 //        return new KeyframeExtractor(getActivity(), 10, 10,
 //                cameraContainer.getImageWidth(),
+//                cameraContainer.getImageHeight(),
+//                boundaries);
+//        return new GrayHistogramExtractor(getActivity(),
+//                cameraContainer.getImageHeight(),
 //                cameraContainer.getImageHeight(),
 //                boundaries);
         return new EdgeHistogramExtractor(getActivity(),

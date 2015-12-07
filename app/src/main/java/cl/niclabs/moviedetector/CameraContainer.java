@@ -112,7 +112,7 @@ public class CameraContainer extends SurfaceView implements SurfaceHolder.Callba
         }
     }
 
-    public int getImageWidth() {
+    public int  getImageWidth() {
         return width;
     }
 

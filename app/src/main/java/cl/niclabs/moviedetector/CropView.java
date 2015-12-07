@@ -3,22 +3,19 @@ package cl.niclabs.moviedetector;
 import java.util.ArrayList;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class DrawView extends View {
+public class CropView extends View {
 
-    static final String TAG = DrawView.class.getSimpleName();
+    static final String TAG = CropView.class.getSimpleName();
 
     Point point1, point3;
     Point point2, point4;
@@ -68,19 +65,19 @@ public class DrawView extends View {
         this.setupPoints(w/2, h/2, defaultWidth, defaultHeight);
     }
 
-    public DrawView(Context context) {
+    public CropView(Context context) {
         super(context);
         bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.red_dot);
         setupPoints(defaultCenterX, defaultCenterY, defaultWidth, defaultHeight);
     }
 
-    public DrawView(Context context, AttributeSet attrs, int defStyle) {
+    public CropView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.red_dot);
         setupPoints(defaultCenterX, defaultCenterY, defaultWidth, defaultHeight);
     }
 
-    public DrawView(Context context, AttributeSet attrs) {
+    public CropView(Context context, AttributeSet attrs) {
         super(context, attrs);
         bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.red_dot);
         setupPoints(defaultCenterX, defaultCenterY, defaultWidth, defaultHeight);

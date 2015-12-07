@@ -21,8 +21,8 @@ public class FromDescriptorsSearchRequest {
     private static final String TAG = FromDescriptorsSearchRequest.class.getSimpleName();
     private static final String FAIL = "FAIL";
 
-//    private final String queryURL = "http://192.168.0.10:5000/search/api/search_by_descriptor";
-    private final String queryURL = "http://172.30.65.34:5000/search/api/search_by_descriptor";
+    private final String queryURL = "http://192.168.0.10:5000/search/api/search_by_descriptor";
+//    private final String queryURL = "http://172.30.65.34:5000/search/api/search_by_descriptor";
     private VideoDescriptor videoDescriptor;
     private ResponseHandler responseHandler;
 
