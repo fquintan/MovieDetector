@@ -28,7 +28,6 @@ void root(const uchar *v_in, uint32_t x,  uint32_t y) {
     int index_value = index;
     volatile int32_t* addr = gOutarray + index;
     rsAtomicAdd(addr, value);
-
 }
 
 

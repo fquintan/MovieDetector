@@ -36,8 +36,8 @@ public class FromVideoSearchRequest {
         this.responseHandler = responseHandler;
     }
 
-//    private final String queryURL = "http://192.168.0.10:5000/search/api/search_by_video_file";
-    private final String queryURL = "http://172.30.65.34:5000/search/api/search_by_video_file";
+    private final String queryURL = "http://192.168.1.110:5000/search/api/search_by_video_file";
+//    private final String queryURL = "http://172.30.65.34:5000/search/api/search_by_video_file";
     public void execute(){new RequestAsyncTask(responseHandler).execute(videoFile);}
 
     private class RequestAsyncTask extends AsyncTask<Uri, Integer, String>{
@@ -51,6 +51,7 @@ public class FromVideoSearchRequest {
         @Override
         protected String doInBackground(Uri... params) {
             Log.d(TAG, "doInBackground");
+
             URL urlToRequest = null;
             StringBuilder response = new StringBuilder();
             HttpURLConnection connection = null;
@@ -69,6 +70,7 @@ public class FromVideoSearchRequest {
             }
 
             try {
+                long start = System.currentTimeMillis();
                 Log.d(TAG, "Finding server");
                 connection = (HttpURLConnection) urlToRequest.openConnection();
                 connection.setDoInput(true);
@@ -82,11 +84,15 @@ public class FromVideoSearchRequest {
 
                 out.writeBytes(twoHyphens + boundary + lineEnd);
                 out.writeBytes("Content-Disposition: form-data; name=\"descriptor\"" + lineEnd + lineEnd);
-                out.writeBytes("KF_10x10_RGB_1U" + lineEnd);
+//                out.writeBytes("KF_10x10_RGB_1U" + lineEnd);
+//                out.writeBytes("EHD_4x4_8x8_5_K5_4F" + lineEnd);
+                out.writeBytes("HISTGRAY_2x2_4F_64" + lineEnd);
 
                 out.writeBytes(twoHyphens + boundary + lineEnd);
                 out.writeBytes("Content-Disposition: form-data; name=\"alias\"" + lineEnd + lineEnd);
-                out.writeBytes("kf" + lineEnd);
+//                out.writeBytes("kf" + lineEnd);
+//                out.writeBytes("ehd" + lineEnd);
+                out.writeBytes("ghd" + lineEnd);
 
                 out.writeBytes(twoHyphens + boundary + lineEnd);
                 out.writeBytes("Content-Disposition: form-data; name=\"uploaded_file\";filename=\""
@@ -121,6 +127,8 @@ public class FromVideoSearchRequest {
                 // send multipart form data necesssary after file data...
                 out.writeBytes(lineEnd);
                 out.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+                int totalBytesSent = out.size();
+                Log.d(TAG, "Total bytes sent: " + totalBytesSent);
                 out.flush();
                 out.close();
                 Log.d(TAG, "Waiting for server response");
@@ -130,6 +138,8 @@ public class FromVideoSearchRequest {
                 while((line = in.readLine()) != null){
                     response.append(line);
                 }
+                long end = System.currentTimeMillis();
+                Log.d(TAG, "Query time:" + (end - start));
             } catch (IOException e) {
                 Log.d(TAG, e.toString());
                 cancel(true);

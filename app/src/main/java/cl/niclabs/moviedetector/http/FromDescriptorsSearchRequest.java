@@ -21,7 +21,7 @@ public class FromDescriptorsSearchRequest {
     private static final String TAG = FromDescriptorsSearchRequest.class.getSimpleName();
     private static final String FAIL = "FAIL";
 
-    private final String queryURL = "http://192.168.0.10:5000/search/api/search_by_descriptor";
+    private final String queryURL = "http://192.168.1.110:5000/search/api/search_by_descriptor";
 //    private final String queryURL = "http://172.30.65.34:5000/search/api/search_by_descriptor";
     private VideoDescriptor videoDescriptor;
     private ResponseHandler responseHandler;
@@ -58,6 +58,7 @@ public class FromDescriptorsSearchRequest {
             }
             try{
                 Log.d(TAG, "Attempting to connect with server");
+                long start = System.currentTimeMillis();
                 urlConnection = (HttpURLConnection) urlToRequest.openConnection();
                 urlConnection.setDoOutput(true);
                 urlConnection.setDoInput(true);
@@ -71,6 +72,8 @@ public class FromDescriptorsSearchRequest {
                 String json = videoDescriptor.toJSON();
                 out.writeBytes(json);
                 out.flush();
+                int totalBytesSent = out.size();
+                Log.d(TAG, "Total bytes sent: " + totalBytesSent);
                 out.close();
                 urlConnection.connect();
                 BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "UTF-8"));
@@ -79,6 +82,9 @@ public class FromDescriptorsSearchRequest {
                 while ((line = in.readLine()) != null) {
                     response.append(line);
                 }
+
+                long end = System.currentTimeMillis();
+                Log.d(TAG, "Query time: " + (end-start));
             } catch (IOException e) {
                 e.printStackTrace();
                 cancel(true);

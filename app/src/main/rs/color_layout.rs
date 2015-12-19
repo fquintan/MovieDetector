@@ -16,7 +16,7 @@ rs_allocation gIn;
 rs_allocation gOut;
 rs_script gScript;
 
-void setup_keyframe(int32_t n_width, int32_t n_height, int32_t imgWidth, int32_t imgHeight){
+void setup_color_layout(int32_t n_width, int32_t n_height, int32_t imgWidth, int32_t imgHeight){
     height = n_height;
     width = n_width;
     zoneWidth = imgWidth / n_width;

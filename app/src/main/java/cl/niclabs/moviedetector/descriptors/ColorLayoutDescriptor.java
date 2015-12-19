@@ -6,17 +6,17 @@ import com.google.gson.JsonObject;
 /**
  * Created by felipe on 19-10-15.
  */
-public class KeyframeDescriptor extends ImageDescriptor {
+public class ColorLayoutDescriptor extends ImageDescriptor {
 
 
     private int height;
     private int width;
 
-    public KeyframeDescriptor(double[] descriptor, long timestamp, int frameNumber) {
+    public ColorLayoutDescriptor(double[] descriptor, long timestamp, int frameNumber) {
         super(descriptor, timestamp, frameNumber);
     }
 
-    public KeyframeDescriptor(double[] descriptor, long timestamp, int frameNumber, int height, int width) {
+    public ColorLayoutDescriptor(double[] descriptor, long timestamp, int frameNumber, int height, int width) {
         super(descriptor, timestamp, frameNumber);
         this.height = height;
         this.width = width;

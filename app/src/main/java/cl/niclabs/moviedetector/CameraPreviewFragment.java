@@ -18,9 +18,9 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import cl.niclabs.moviedetector.descriptors.EdgeHistogramDescriptor;
-import cl.niclabs.moviedetector.descriptors.EdgeHistogramExtractor;
 import cl.niclabs.moviedetector.descriptors.ImageDescriptorExtractor;
+import cl.niclabs.moviedetector.descriptors.ColorLayoutDescriptor;
+import cl.niclabs.moviedetector.descriptors.ColorLayoutExtractor;
 import cl.niclabs.moviedetector.descriptors.VideoDescriptor;
 import cl.niclabs.moviedetector.http.FromDescriptorsSearchRequest;
 import cl.niclabs.moviedetector.utils.ScreenBoundaries;
@@ -40,18 +40,18 @@ public class CameraPreviewFragment extends Fragment{
 
 
     private class VideoDescriptorExtractor implements Camera.PreviewCallback{
-        private VideoDescriptor<EdgeHistogramDescriptor, Double> videoDescriptor;
+//        private VideoDescriptor<EdgeHistogramDescriptor, Double> videoDescriptor;
 //        private VideoDescriptor<GrayHistogramDescriptor, Double> videoDescriptor;
-//        private VideoDescriptor<KeyframeDescriptor, Integer> videoDescriptor;
+        private VideoDescriptor<ColorLayoutDescriptor, Integer> videoDescriptor;
         private long startTime;
         private long lastDescriptor = 0;
         private int frameCounter = -1;
         private static final long max_time = 5000;
         private static final long segmentation = 250;
         public VideoDescriptorExtractor(){
-            videoDescriptor = new VideoDescriptor<EdgeHistogramDescriptor, Double>(Double.class);
+//            videoDescriptor = new VideoDescriptor<EdgeHistogramDescriptor, Double>(Double.class);
 //            videoDescriptor = new VideoDescriptor<GrayHistogramDescriptor, Double>(Double.class);
-//            videoDescriptor = new VideoDescriptor<KeyframeDescriptor, Integer>(Integer.class);
+            videoDescriptor = new VideoDescriptor<ColorLayoutDescriptor, Integer>(Integer.class);
             startTime = System.currentTimeMillis();
         }
 
@@ -65,8 +65,8 @@ public class CameraPreviewFragment extends Fragment{
                 if (currentTime - lastDescriptor > segmentation){
                     lastDescriptor = currentTime;
 //                    GrayHistogramDescriptor descriptor = (GrayHistogramDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
-//                    KeyframeDescriptor descriptor = (KeyframeDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
-                    EdgeHistogramDescriptor descriptor = (EdgeHistogramDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
+                    ColorLayoutDescriptor descriptor = (ColorLayoutDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
+//                    EdgeHistogramDescriptor descriptor = (EdgeHistogramDescriptor) descriptorExtractor.extract(data, timeRecorded, frameCounter);
                     videoDescriptor.addDescriptor(descriptor);
                 }
             }
@@ -157,18 +157,18 @@ public class CameraPreviewFragment extends Fragment{
         bottom = (int) (cameraHeight / ((double) screenHeight) * bottom);
         ScreenBoundaries boundaries = new ScreenBoundaries(left, right, top, bottom);
 
-//        return new KeyframeExtractor(getActivity(), 10, 10,
-//                cameraContainer.getImageWidth(),
-//                cameraContainer.getImageHeight(),
-//                boundaries);
+        return new ColorLayoutExtractor(getActivity(), 10, 10,
+                cameraContainer.getImageWidth(),
+                cameraContainer.getImageHeight(),
+                boundaries);
 //        return new GrayHistogramExtractor(getActivity(),
 //                cameraContainer.getImageHeight(),
 //                cameraContainer.getImageHeight(),
 //                boundaries);
-        return new EdgeHistogramExtractor(getActivity(),
-                cameraContainer.getImageWidth(),
-                cameraContainer.getImageHeight(),
-                boundaries);
+//        return new EdgeHistogramExtractor(getActivity(),
+//                cameraContainer.getImageWidth(),
+//                cameraContainer.getImageHeight(),
+//                boundaries);
     }
 
     @Override

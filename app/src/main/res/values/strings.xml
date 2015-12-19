@@ -2,7 +2,9 @@
     <string name="app_name">MovieDetector</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="capture_button_text">Grabar</string>
+    <string name="capture_button_text">Comenzar</string>
     <string name="result_title_string">Titulo:</string>
     <string name="result_score_string">score:</string>
+    <string name="instructions_message">Para realizar una búsqueda grabe un video de su pantalla</string>
+    <string name="instruction_message2">Intente encuadrar su pantalla con la cámara</string>
 </resources>

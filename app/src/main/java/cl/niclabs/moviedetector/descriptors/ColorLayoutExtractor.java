@@ -5,15 +5,15 @@ import android.graphics.ImageFormat;
 import android.support.v8.renderscript.*;
 import android.util.Log;
 
-import cl.niclabs.moviedetector.ScriptC_keyframe;
+import cl.niclabs.moviedetector.ScriptC_color_layout;
 import cl.niclabs.moviedetector.utils.ScreenBoundaries;
 
 /**
  * Created by felipe on 20-10-15.
  */
-public class KeyframeExtractor implements ImageDescriptorExtractor{
+public class ColorLayoutExtractor implements ImageDescriptorExtractor{
 
-    private static final String TAG = KeyframeExtractor.class.getCanonicalName();
+    private static final String TAG = ColorLayoutExtractor.class.getCanonicalName();
     int descriptorHeight;
     int descriptorWidth;
     int descriptorLength;
@@ -31,16 +31,16 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
 
     private RenderScript rs;
     private ScriptIntrinsicYuvToRGB yuvToRGB;
-    private ScriptC_keyframe keyframeScript;
+    private ScriptC_color_layout colorLayoutScript;
 
     private Allocation yuvAllocation;
     private Allocation rgbAllocation;
     private Allocation rgbCroppedAllocation;
-    private Allocation keyFrameAllocation;
+    private Allocation colorLayoutAllocation;
     private int[] emptyDescriptor;
     private int[] descriptor;
 
-    public KeyframeExtractor(Context context, int descriptorHeight, int descriptorWidth, int imageWidth, int imageHeight, ScreenBoundaries croppingLimits) {
+    public ColorLayoutExtractor(Context context, int descriptorHeight, int descriptorWidth, int imageWidth, int imageHeight, ScreenBoundaries croppingLimits) {
         this.descriptorHeight = descriptorHeight;
         this.descriptorWidth = descriptorWidth;
         this.imageWidth = imageWidth;
@@ -68,16 +68,16 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
         rgbCroppedAllocation.copy2DRangeFrom(0, 0, croppedImageWidth, croppedImageHeight,
                                              rgbAllocation, screenLimits.left, screenLimits.top);
         Log.d("KeyframeExtractor", "cropped allocation");
-        keyFrameAllocation.copyFrom(emptyDescriptor);
-        keyframeScript.set_gIn(rgbCroppedAllocation);
-        keyframeScript.set_gOut(keyFrameAllocation);
-        keyframeScript.bind_gOutarray(keyFrameAllocation);
+        colorLayoutAllocation.copyFrom(emptyDescriptor);
+        colorLayoutScript.set_gIn(rgbCroppedAllocation);
+        colorLayoutScript.set_gOut(colorLayoutAllocation);
+        colorLayoutScript.bind_gOutarray(colorLayoutAllocation);
 
-//        keyframeScript.set_gScript(keyframeScript);
-        keyframeScript.invoke_compute_keyframe();
+//        colorLayoutScript.set_gScript(colorLayoutScript);
+        colorLayoutScript.invoke_compute_keyframe();
         rs.finish();
 
-        keyFrameAllocation.copyTo(descriptor);
+        colorLayoutAllocation.copyTo(descriptor);
 
         double[] descriptor_as_double = new double[descriptorLength];
         int count = 0;
@@ -85,14 +85,14 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
             descriptor_as_double[i] = descriptor[i] / (zoneHeight*zoneWidth);
             count += descriptor[i];
         }
-        return new KeyframeDescriptor(descriptor_as_double, timestamp, frameNumber,
+        return new ColorLayoutDescriptor(descriptor_as_double, timestamp, frameNumber,
                                         descriptorHeight, descriptorWidth);
     }
 
     private void setupRenderscript(Context context){
         rs = RenderScript.create(context);
         yuvToRGB = ScriptIntrinsicYuvToRGB.create(rs, Element.U8_4(rs));
-        keyframeScript = new ScriptC_keyframe(rs);
+        colorLayoutScript = new ScriptC_color_layout(rs);
 
         Type.Builder tbYUV = new Type.Builder(rs, Element.U8(rs));
         tbYUV.setX(imageWidth);
@@ -113,10 +113,10 @@ public class KeyframeExtractor implements ImageDescriptorExtractor{
         yuvAllocation = Allocation.createTyped(rs, tbYUV.create(), Allocation.MipmapControl.MIPMAP_NONE,  Allocation.USAGE_SCRIPT & Allocation.USAGE_SHARED);
         rgbAllocation = Allocation.createTyped(rs, tbRGB.create(), Allocation.MipmapControl.MIPMAP_NONE,  Allocation.USAGE_SCRIPT );
         rgbCroppedAllocation = Allocation.createTyped(rs, tbRGBCrop.create(), Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
-        keyFrameAllocation = Allocation.createTyped(rs, tbKeyframe.create(), Allocation.USAGE_SCRIPT);
+        colorLayoutAllocation = Allocation.createTyped(rs, tbKeyframe.create(), Allocation.USAGE_SCRIPT);
 
-        keyframeScript.invoke_setup_keyframe(descriptorWidth, descriptorHeight, croppedImageWidth, croppedImageHeight);
-        keyframeScript.set_gScript(keyframeScript);
+        colorLayoutScript.invoke_setup_color_layout(descriptorWidth, descriptorHeight, croppedImageWidth, croppedImageHeight);
+        colorLayoutScript.set_gScript(colorLayoutScript);
 
     }
 }
